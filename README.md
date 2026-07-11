@@ -19,7 +19,7 @@ git clone https://github.com/soonjune/skills ~/skills
 ~/skills/scripts/link.sh
 ```
 
-`link.sh` links every skill into each agent's skills directory:
+`link.sh` links every skill into each **installed** agent's skills directory (agents whose home dir is missing are skipped; set `LINK_ALL=1` to force all):
 
 | Agent | Skills directory |
 |---|---|
