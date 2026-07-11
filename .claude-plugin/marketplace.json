@@ -1,0 +1,22 @@
+{
+  "name": "soonjune-skills",
+  "owner": {
+    "name": "soonjune",
+    "email": "parkseungjoon@snu.ac.kr"
+  },
+  "metadata": {
+    "description": "soonjune's personal Agent Skills",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "soonjune-skills",
+      "description": "Portable personal Agent Skills — one collection serving Claude Code, OpenClaw, and Hermes",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/new-skill"
+      ]
+    }
+  ]
+}
