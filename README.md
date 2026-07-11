@@ -34,7 +34,7 @@ Or just copy a single skill directory — every `SKILL.md` carries its own `lice
 <!-- skills:start -->
 | Skill | Description | Agents |
 | --- | --- | --- |
-| [`new-skill`](skills/new-skill) | Scaffold a new skill in soonjune's skills repos (public ~/skills or private ~/skills-private) — copies the template, enforces Agent Skills spec conventions, refreshes the catalog, and relinks agent skill directories. | all |
+| [`new-skill`](skills/new-skill) | Scaffold a new skill in this skills repository — copies the template, enforces Agent Skills spec conventions, refreshes the catalog and marketplace manifest, and relinks agent skill directories. | all |
 <!-- skills:end -->
 
 ## Anatomy of a skill
