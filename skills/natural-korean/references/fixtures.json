@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "schema": {
+    "description": "rules.json의 장르, scope, 임계치, 마스킹 계약을 고정하는 합성 회귀 입력.",
+    "fixture_fields": {
+      "id": "fixture 파일 안에서 고유한 식별자.",
+      "text": "검사할 합성 문자열. 실제 업무 문장이나 개인정보를 넣지 않는다.",
+      "genre": "ppt, report, email, code 또는 null. null은 all 규칙만 적용한다.",
+      "expected_rule_ids": "임계치를 충족해 보고되어야 하는 정확한 규칙 ID 집합.",
+      "expected_exit": "예상 종료 코드 0 또는 1."
+    },
+    "semantics": "각 fixture는 기본 마스킹으로 실행한다. 기대 ID는 순서와 무관하지만 누락과 추가를 모두 실패로 처리하며, 모든 기본 규칙은 하나 이상의 양성 fixture로 덮는다."
+  },
+  "fixtures": [
+    {
+      "id": "F-R01",
+      "text": "절차가 시행되어지고 있다",
+      "genre": null,
+      "expected_rule_ids": ["R-01"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R02",
+      "text": "검토에 있어서 기준을 먼저 확인한다",
+      "genre": null,
+      "expected_rule_ids": ["R-02"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R03",
+      "text": "이 방식은 장점을 가지고 있다",
+      "genre": null,
+      "expected_rule_ids": ["R-03"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R04-THRESHOLD",
+      "text": "일정이 담당자에 의해 정해졌다. 순서는 담당자에 의해 바뀌었다. 결과는 담당자에 의해 공유됐다.",
+      "genre": null,
+      "expected_rule_ids": ["R-04"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R05-PARAGRAPH",
+      "text": "가격에 대해 논의한다. 일정에 대해서 검토한다. 범위에 대한 의견을 모은다.",
+      "genre": null,
+      "expected_rule_ids": ["R-05"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R06-THRESHOLD",
+      "text": "문서에서의 표현을 확인한다. 회의에서의 발언도 확인한다.",
+      "genre": null,
+      "expected_rule_ids": ["R-06"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R07",
+      "text": "일정을 조정할 수 있을 것으로 예상한다",
+      "genre": null,
+      "expected_rule_ids": ["R-07"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R08-PARAGRAPH",
+      "text": "범위를 줄일 수 있습니다. 순서를 바꿀 수 있습니다. 일정을 조정할 수 있습니다.",
+      "genre": null,
+      "expected_rule_ids": ["R-08"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R17-THRESHOLD",
+      "text": "결론적으로 검토가 필요하다. 요약하면 확인이 필요하다. 종합하면 논의가 필요하다. 정리하자면 조정이 필요하다.",
+      "genre": null,
+      "expected_rule_ids": ["R-17"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R18-PARAGRAPH",
+      "text": "괄목할 만한 결과이며 시사하는 바가 크다.",
+      "genre": null,
+      "expected_rule_ids": ["R-18"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R19-PARAGRAPH",
+      "text": "혁신적인 방식, 압도적인 구성, 획기적인 절차를 강조한다.",
+      "genre": null,
+      "expected_rule_ids": ["R-19"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R20-ADVISORY",
+      "text": "내용은 크게 세 가지로 나눌 수 있다",
+      "genre": null,
+      "expected_rule_ids": ["R-20"],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R21-ADVISORY",
+      "text": "이제 결정해야 할 때입니다",
+      "genre": null,
+      "expected_rule_ids": ["R-21"],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R22-THRESHOLD",
+      "text": "검토를 넘어 실행으로의 전환을 논의한다. 확인을 넘어 정리한다.",
+      "genre": null,
+      "expected_rule_ids": ["R-22"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R23-PARAGRAPH",
+      "text": "속도가 아니라 방향이다. 양이 아니라 순서다. 형식이라기보다 내용이다.",
+      "genre": null,
+      "expected_rule_ids": ["R-23"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R24-PARAGRAPH",
+      "text": "검토했지만, 남았다. 확인하면서, 정리했다. 논의했는데, 미뤘다. 살펴보며, 적었다. 길어서, 나눴다. 찾아서, 적었다.",
+      "genre": null,
+      "expected_rule_ids": ["R-24"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R27-THRESHOLD",
+      "text": "또한, 범위를 본다.\n따라서, 순서를 본다.\n아울러, 일정을 본다.\n나아가, 조건을 본다.\n게다가, 예외를 본다.",
+      "genre": null,
+      "expected_rule_ids": ["R-27"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R28-GENRE",
+      "text": "첫째, 범위를 확인함. 둘째, 순서를 확인함. 셋째, 예외를 확인함. 넷째, 형식을 확인함.",
+      "genre": "report",
+      "expected_rule_ids": ["R-28"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R29-ADVISORY",
+      "text": "✅ 검토 완료",
+      "genre": "report",
+      "expected_rule_ids": ["R-29"],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R30-PPT",
+      "text": "검토를 완료했습니다",
+      "genre": "ppt",
+      "expected_rule_ids": ["R-30"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R31-PPT",
+      "text": "우리는 안건을 검토함",
+      "genre": "ppt",
+      "expected_rule_ids": ["R-31"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R35-ADVISORY",
+      "text": "# 목록을 정렬합니다",
+      "genre": "code",
+      "expected_rule_ids": ["R-35"],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R36-BOUNDARY",
+      "text": "요청하신 대로 내용을 정리함",
+      "genre": "report",
+      "expected_rule_ids": ["R-36"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R36-CODE-REQUEST-BOUNDARY",
+      "text": "// 요청하신 대로 재시도 조건 변경",
+      "genre": "code",
+      "expected_rule_ids": ["R-36"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R36-CODE-PROMPT-BOUNDARY",
+      "text": "// 프롬프트에 따라 오류 로그 추가",
+      "genre": "code",
+      "expected_rule_ids": ["R-36"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R37-DOCUMENT-START",
+      "text": "\n\n다음은 검토 결과입니다\n검토 항목",
+      "genre": null,
+      "expected_rule_ids": ["R-37"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R38-CODE-BOUNDARY",
+      "text": "// 사용자 요청으로 조건 분기 변경",
+      "genre": "code",
+      "expected_rule_ids": ["R-38"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R36-LEGITIMATE-PROVENANCE",
+      "text": "외부 감사 요청에 따라 자료를 보존함",
+      "genre": "report",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R38-DOMAIN-REQUEST",
+      "text": "# 사용자 요청을 큐에 저장",
+      "genre": "code",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-CLEAN",
+      "text": "검토 항목 정리\n후속 일정 확인",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R37-NOT-LATER",
+      "text": "검토 결과\n다음은 별도 설명입니다",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-MASK-FENCE-BACKTICK",
+      "text": "```text\n정책이 시행되어지고 있다\n```",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-MASK-FENCE-TILDE",
+      "text": "~~~text\n정책이 시행되어지고 있다\n~~~",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-MASK-INLINE",
+      "text": "표현 예시는 `정책이 시행되어지고 있다`로 기록한다",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-MASK-BLOCKQUOTE",
+      "text": "> 정책이 시행되어지고 있다\n검토 항목",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-MASK-DIRECT-QUOTE",
+      "text": "문서에는 “정책이 시행되어지고 있다”라는 인용이 있다",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R04-BELOW-THRESHOLD",
+      "text": "일정이 담당자에 의해 정해졌다. 순서도 담당자에 의해 정해졌다.",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R05-PARAGRAPH-ISOLATION",
+      "text": "가격에 대해 논의한다. 일정에 대해 검토한다.\n\n범위에 대해 논의한다. 조건에 대해 검토한다.",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R30-GENRE-GATE",
+      "text": "검토를 완료했습니다",
+      "genre": "report",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R36-EMAIL-BOUNDARY",
+      "text": "요청하신 자료를 확인했습니다",
+      "genre": "email",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-NO-BLANKET-JIGEDOENDA",
+      "text": "일정이 늦어지게 된다",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-NO-BLANKET-THROUGH-THING",
+      "text": "검토를 통해 확인한 것이다",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    }
+  ]
+}

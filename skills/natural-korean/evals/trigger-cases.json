@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "purpose": "수동 또는 클라이언트별 자동화로 description 라우팅을 회귀 점검한다. 동일 질의를 여러 번 실행해 실제 SKILL.md 로드 여부를 기록한다.",
+  "cases": [
+    {
+      "id": "trigger-01",
+      "query": "이 분기 실적을 임원 보고용 PPT 두 장으로 정리해줘.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-02",
+      "query": "첨부한 한국어 보고서 문장이 번역투 같아. 의미는 그대로 두고 자연스럽게 다듬어줘.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-03",
+      "query": "거래처에 보낼 일정 변경 안내 메일 초안을 써줘.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-04",
+      "query": "회의 메모를 의사결정과 후속 조치 중심의 회의록으로 정리해줘.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-05",
+      "query": "이 함수의 한국어 주석을 코드베이스 톤에 맞게 짧게 고쳐줘.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-06",
+      "query": "이 공지에서 AI 티와 '요청하신 대로' 같은 작업 설명을 빼줘.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-07",
+      "query": "Write a concise Korean executive summary for the attached analysis.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-08",
+      "query": "발표 장표인데 문장 끝을 전부 설명문처럼 쓰지 말고 개조식으로 바꿔줘.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-09",
+      "query": "앞으로 PPT 본문에는 '우리는'을 주어로 넣지 마.",
+      "should_trigger": true
+    },
+    {
+      "id": "trigger-10",
+      "query": "네가 쓴 메일을 내가 이렇게 고쳤어. 다음부터도 이 정도로 짧게 써줘.",
+      "should_trigger": true
+    },
+    {
+      "id": "no-trigger-01",
+      "query": "오늘 점심 뭐 먹을까?",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-02",
+      "query": "이 한국어 단어의 사전적 의미가 뭐야?",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-03",
+      "query": "이 파이썬 함수의 시간 복잡도를 분석해줘.",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-04",
+      "query": "보고서의 매출 수치 12를 15로만 바꿔줘. 문장은 건드리지 마.",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-05",
+      "query": "이 영어 문단에서 오탈자만 찾아줘.",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-06",
+      "query": "받은 메일 내용을 나한테 한 문장으로 설명해줘. 답장은 쓰지 않아도 돼.",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-07",
+      "query": "한국어 번역투가 생기는 이유를 설명해줘.",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-08",
+      "query": "Draft an English press release for the product launch.",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-09",
+      "query": "CSV에서 부서별 평균을 계산하고 그래프로 그려줘.",
+      "should_trigger": false
+    },
+    {
+      "id": "no-trigger-10",
+      "query": "친구에게 보낼 카톡 답장을 같이 고민해줘.",
+      "should_trigger": false
+    }
+  ]
+}
