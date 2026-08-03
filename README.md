@@ -34,7 +34,7 @@ Or just copy a single skill directory — every `SKILL.md` carries its own `lice
 <!-- skills:start -->
 | Skill | Description | Agents |
 | --- | --- | --- |
-| [`natural-korean`](skills/natural-korean) | 한국어 보고서·PPT·이메일·회의록·공지·번역문·코드 주석·커밋 메시지를 작성하거나 다듬을 때 문서와 독자에 맞는 자연스러운 문체를 적용하고, "AI 티 빼줘", "번역투 고쳐", "자연스럽게 써줘", "개조식으로", "말투 고쳐", "앞으로 이렇게 써" 같은 요청과 사람이 고친 문체를 로컬 취향 후보로 정리한다. | all |
+| [`natural-korean`](skills/natural-korean) | 한국어 보고서·PPT·이메일·회의록·공지·번역문·코드 주석·커밋 메시지를 작성하거나 다듬을 때 문서와 독자에 맞는 자연스러운 문체를 적용하고, "AI 티 빼줘", "AI스러운 표현 빼줘", "번역투 고쳐", "자연스럽게 써줘", "개조식으로", "말투 고쳐", "앞으로 이렇게 써" 같은 요청과 사람이 고친 문체를 로컬 취향 후보로 정리한다. | all |
 | [`new-skill`](skills/new-skill) | Scaffold a new skill in this skills repository — copies the template, enforces Agent Skills spec conventions, refreshes the catalog and marketplace manifest, and relinks agent skill directories. | all |
 <!-- skills:end -->
 

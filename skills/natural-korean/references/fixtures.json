@@ -202,6 +202,62 @@
       "expected_exit": 1
     },
     {
+      "id": "F-R39-SELF-NARRATION",
+      "text": "이 보고서에는 점검 결과를 정리했다",
+      "genre": "report",
+      "expected_rule_ids": ["R-39"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R40-INTERPRETIVE-LEAD",
+      "text": "이 부분이 관건입니다",
+      "genre": "report",
+      "expected_rule_ids": ["R-40"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R41-ADVISORY",
+      "text": "합의 내용을 굳혀 두었다",
+      "genre": null,
+      "expected_rule_ids": ["R-41"],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R39-EXTERNAL-DOCUMENT",
+      "text": "지난 보고서에 담았던 표를 다시 쓴다",
+      "genre": "report",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R39-NOT-SELF-NARRATION",
+      "text": "이 보고서는 점검 결과를 정리한 자료다",
+      "genre": "report",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R39-GENRE-GATE",
+      "text": "이 장표에는 점검 결과를 정리했다",
+      "genre": "ppt",
+      "expected_rule_ids": ["R-30"],
+      "expected_exit": 1
+    },
+    {
+      "id": "F-R40-CONTENT-FIRST",
+      "text": "관건은 승인 일정이다",
+      "genre": "report",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R41-PLAIN-VERB",
+      "text": "합의 내용을 저장했다",
+      "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
       "id": "F-R36-LEGITIMATE-PROVENANCE",
       "text": "외부 감사 요청에 따라 자료를 보존함",
       "genre": "report",
