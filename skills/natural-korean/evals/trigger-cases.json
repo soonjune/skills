@@ -53,6 +53,11 @@
       "should_trigger": true
     },
     {
+      "id": "trigger-11",
+      "query": "이 보고서 문장이 너무 AI스러운데 사람이 쓴 것처럼 다듬어줘.",
+      "should_trigger": true
+    },
+    {
       "id": "no-trigger-01",
       "query": "오늘 점심 뭐 먹을까?",
       "should_trigger": false
