@@ -1,0 +1,1097 @@
+<!doctype html>
+<!--
+PLACEHOLDER MAP
+
+Global text
+  {{report_title}}          Report title
+  {{run_id}}                Run identifier
+  {{period}}                Start and end time with timezone
+  {{generated_at}}          Report generation time
+  {{overall_status}}        Overall status text
+  {{journal_path}}          Absolute journal path
+
+Status counts
+  {{count_pass}} {{count_fail}} {{count_partial}} {{count_skipped}} {{count_blocked}}
+
+Executive summary, exactly five items
+  {{summary_work}} {{summary_success}} {{summary_blocked}} {{summary_decision}} {{summary_next}}
+
+Mission card, clone the marked MISSION_CARD block once per mission
+  {{mission_id}} {{mission_title}} {{mission_status}} {{mission_status_class}}
+  {{mission_goal}} {{mission_actions}}
+  {{metric_name}} {{metric_value}} {{metric_unit}} {{metric_expected}}
+  {{metric_tolerance}} {{metric_pass}} {{metric_condition}} {{metric_command}} {{metric_evidence}}
+  {{mission_log_excerpt}} {{mission_log_path}} {{mission_artifacts}} {{mission_commit}}
+
+Timeline row, clone the marked TIMELINE_ROW block once per selected event
+  {{timeline_time}} {{timeline_event}} {{timeline_detail}}
+
+Controlled repeated HTML
+  {{decisions_html}}        Escaped list items only
+  {{next_steps_html}}       Escaped chip spans only
+
+FILLING METHOD
+  Copy this file before editing it.
+  HTML-escape every journal-derived string.
+  Clone marked repeat blocks, including metric rows when a mission has multiple result events.
+  Build repeated list items and chips only from the fixed elements already used below.
+  Remove this map and completed sample comments from the final report.
+  Reject a final report that retains any required placeholder.
+-->
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{{report_title}} · {{run_id}}</title>
+  <style>
+    :root {
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --nav: #0f172a;
+      --nav-soft: #1e293b;
+      --ink: #172033;
+      --muted: #64748b;
+      --line: #d9e0ea;
+      --surface: #ffffff;
+      --canvas: #f5f7fb;
+      --green: #15803d;
+      --green-soft: #ecfdf3;
+      --red: #b91c1c;
+      --red-soft: #fff1f2;
+      --amber: #a16207;
+      --amber-soft: #fffbeb;
+      --purple: #7e22ce;
+      --purple-soft: #faf5ff;
+      --gray-soft: #f1f5f9;
+      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      color: #e2e8f0;
+      background: var(--nav);
+      border-bottom: 1px solid #334155;
+    }
+
+    .nav-inner {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 9px 24px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    nav a {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      color: #cbd5e1;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    nav a:hover,
+    nav a:focus-visible {
+      color: #ffffff;
+      background: var(--nav-soft);
+      outline: none;
+    }
+
+    nav a span {
+      margin-right: 4px;
+      color: #60a5fa;
+    }
+
+    main {
+      width: min(1200px, calc(100% - 32px));
+      margin: 28px auto 64px;
+    }
+
+    section,
+    .hero {
+      scroll-margin-top: 74px;
+    }
+
+    .hero {
+      padding: 32px 36px 28px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 22px;
+      padding-bottom: 15px;
+      border-bottom: 5px solid var(--blue);
+      color: #0f172a;
+      font-size: clamp(28px, 5vw, 46px);
+      line-height: 1.18;
+      letter-spacing: -0.035em;
+    }
+
+    h2 {
+      margin: 0 0 22px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #cbd5e1;
+      color: #0f172a;
+      font-size: 24px;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      color: #1e293b;
+      font-size: 17px;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .meta {
+      min-width: 0;
+      padding: 13px 15px;
+      background: var(--gray-soft);
+      border-radius: 10px;
+    }
+
+    .meta dt {
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .meta dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-weight: 700;
+    }
+
+    .panel {
+      margin-top: 24px;
+      padding: 28px 30px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .summary-card {
+      min-height: 148px;
+      padding: 16px;
+      background: #f8fafc;
+      border-top: 4px solid var(--blue);
+      border-radius: 10px;
+    }
+
+    .summary-card:nth-child(2) {
+      border-top-color: var(--green);
+    }
+
+    .summary-card:nth-child(3) {
+      border-top-color: var(--red);
+    }
+
+    .summary-card:nth-child(4) {
+      border-top-color: var(--amber);
+    }
+
+    .summary-card:nth-child(5) {
+      border-top-color: var(--purple);
+    }
+
+    .summary-label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .summary-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .status-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .status {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 9px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .status-pass {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: #bbf7d0;
+    }
+
+    .status-fail,
+    .status-blocked {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: #fecdd3;
+    }
+
+    .status-partial {
+      color: var(--amber);
+      background: var(--amber-soft);
+      border-color: #fde68a;
+    }
+
+    .status-skipped,
+    .status-neutral {
+      color: #475569;
+      background: var(--gray-soft);
+      border-color: #cbd5e1;
+    }
+
+    .note,
+    .warn {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-left: 5px solid;
+      border-radius: 8px;
+    }
+
+    .note {
+      color: #713f12;
+      background: #fffbeb;
+      border-left-color: #f59e0b;
+    }
+
+    .warn {
+      color: #7f1d1d;
+      background: #fff1f2;
+      border-left-color: #ef4444;
+    }
+
+    .note > :last-child,
+    .warn > :last-child {
+      margin-bottom: 0;
+    }
+
+    .flow {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      overflow-x: auto;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .lane {
+      display: grid;
+      grid-template-columns: 92px minmax(760px, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .lane-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      color: #ffffff;
+      background: var(--nav);
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      min-width: max-content;
+    }
+
+    .step {
+      min-width: 128px;
+      padding: 13px 12px;
+      color: #1e3a8a;
+      background: var(--blue-soft);
+      border: 1px solid #bfdbfe;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .step small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .arrow {
+      width: 34px;
+      color: var(--blue);
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .branch {
+      display: flex;
+      min-width: 270px;
+      flex-direction: column;
+      gap: 7px;
+      padding: 10px;
+      background: #ffffff;
+      border: 1px dashed #94a3b8;
+      border-radius: 10px;
+    }
+
+    .branch-title {
+      color: #334155;
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .branch-paths {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .branch-path {
+      padding: 8px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .b-ok {
+      color: var(--green);
+      background: var(--green-soft);
+      border: 1px solid #bbf7d0;
+    }
+
+    .b-fail {
+      color: var(--red);
+      background: var(--red-soft);
+      border: 1px solid #fecdd3;
+    }
+
+    .mission {
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-left: 6px solid #94a3b8;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+
+    .mission[data-status="status-pass"] {
+      border-left-color: var(--green);
+    }
+
+    .mission[data-status="status-fail"],
+    .mission[data-status="status-blocked"] {
+      border-left-color: var(--red);
+    }
+
+    .mission[data-status="status-partial"] {
+      border-left-color: var(--amber);
+    }
+
+    .mission-head {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .mission-kicker {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+    }
+
+    .mission h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .subcard {
+      min-width: 0;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .subcard ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .subcard li + li {
+      margin-top: 5px;
+    }
+
+    .table-wrap {
+      margin-top: 14px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #475569;
+      background: #f8fafc;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    td.big {
+      color: var(--blue-dark);
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    code {
+      padding: 2px 5px;
+      color: #1e3a8a;
+      background: #dbeafe;
+      border-radius: 4px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.9em;
+    }
+
+    .code {
+      margin: 12px 0 0;
+      padding: 14px 15px;
+      overflow-x: auto;
+      color: #dbeafe;
+      background: var(--nav);
+      border: 1px solid #334155;
+      border-radius: 9px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .path {
+      margin-top: 8px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      padding: 5px 9px;
+      color: #334155;
+      background: var(--gray-soft);
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .timeline {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .timeline::before {
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      left: 91px;
+      width: 2px;
+      background: #cbd5e1;
+      content: "";
+    }
+
+    .timeline li {
+      display: grid;
+      position: relative;
+      grid-template-columns: 76px 1fr;
+      gap: 31px;
+      padding: 0 0 18px;
+    }
+
+    .timeline li::before {
+      position: absolute;
+      top: 7px;
+      left: 86px;
+      width: 10px;
+      height: 10px;
+      background: var(--blue);
+      border: 3px solid #dbeafe;
+      border-radius: 50%;
+      content: "";
+    }
+
+    .timeline time {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .timeline strong {
+      display: block;
+      color: #1e293b;
+    }
+
+    .timeline p {
+      margin: 2px 0 0;
+      color: #475569;
+      font-size: 13px;
+    }
+
+    footer {
+      margin-top: 24px;
+      padding: 18px 22px;
+      color: #cbd5e1;
+      background: var(--nav);
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    footer p {
+      margin: 3px 0;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 900px) {
+      .meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .summary-card:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        word-break: normal;
+      }
+
+      main {
+        width: min(100% - 20px, 1200px);
+        margin-top: 12px;
+      }
+
+      .hero,
+      .panel {
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      .meta-grid,
+      .summary-grid,
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-card:last-child {
+        grid-column: auto;
+      }
+
+      .mission-head {
+        flex-direction: column;
+      }
+
+      .timeline::before {
+        left: 69px;
+      }
+
+      .timeline li {
+        grid-template-columns: 58px 1fr;
+        gap: 27px;
+      }
+
+      .timeline li::before {
+        left: 64px;
+      }
+    }
+
+    @media print {
+      @page {
+        margin: 14mm;
+        size: A4;
+      }
+
+      * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      body {
+        color: #000000;
+        background: #ffffff;
+        font-size: 10pt;
+      }
+
+      nav {
+        display: none;
+      }
+
+      main {
+        width: 100%;
+        margin: 0;
+      }
+
+      .hero,
+      .panel {
+        margin-top: 10mm;
+        box-shadow: none;
+      }
+
+      .hero {
+        margin-top: 0;
+      }
+
+      .mission,
+      .summary-card,
+      .subcard,
+      .note,
+      .warn,
+      .flow,
+      table {
+        break-inside: avoid;
+      }
+
+      .flow {
+        overflow: visible;
+      }
+
+      .lane {
+        grid-template-columns: 70px 1fr;
+      }
+
+      .steps {
+        min-width: 0;
+      }
+
+      .step {
+        min-width: 0;
+      }
+
+      .arrow {
+        width: 22px;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav aria-label="보고서 섹션">
+    <div class="nav-inner">
+      <a href="#summary"><span>01</span>요약</a>
+      <a href="#flow"><span>02</span>작업 흐름</a>
+      <a href="#missions"><span>03</span>미션</a>
+      <a href="#timeline"><span>04</span>타임라인</a>
+      <a href="#decisions"><span>05</span>결정 필요</a>
+      <a href="#next"><span>06</span>다음 단계</a>
+    </div>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Nightshift Morning Report</div>
+      <h1>{{report_title}}</h1>
+      <dl class="meta-grid">
+        <div class="meta">
+          <dt>Run ID</dt>
+          <dd>{{run_id}}</dd>
+        </div>
+        <div class="meta">
+          <dt>실행 기간</dt>
+          <dd>{{period}}</dd>
+        </div>
+        <div class="meta">
+          <dt>전체 상태</dt>
+          <dd><span class="status status-neutral">{{overall_status}}</span></dd>
+        </div>
+        <div class="meta">
+          <dt>생성 시각</dt>
+          <dd>{{generated_at}}</dd>
+        </div>
+      </dl>
+    </header>
+
+    <section class="panel" id="summary">
+      <h2>01. Executive summary</h2>
+      <div class="summary-grid">
+        <article class="summary-card">
+          <span class="summary-label">한 일</span>
+          <p>{{summary_work}}</p>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">된 것</span>
+          <p>{{summary_success}}</p>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">막힌 것</span>
+          <p>{{summary_blocked}}</p>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">결정 필요</span>
+          <p>{{summary_decision}}</p>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">다음 단계</span>
+          <p>{{summary_next}}</p>
+        </article>
+      </div>
+      <div class="status-strip" aria-label="미션 상태별 개수">
+        <span class="status status-pass">PASS {{count_pass}}</span>
+        <span class="status status-fail">FAIL {{count_fail}}</span>
+        <span class="status status-partial">PARTIAL {{count_partial}}</span>
+        <span class="status status-skipped">SKIPPED {{count_skipped}}</span>
+        <span class="status status-blocked">BLOCKED {{count_blocked}}</span>
+      </div>
+    </section>
+
+    <section class="panel" id="flow">
+      <h2>02. 밤 작업 흐름</h2>
+      <div class="note">
+        문서의 수치는 실행 직전 라이브 상태를 다시 확인했고, 판정값을 journal에 먼저 기록한 뒤 상태를 결정했다.
+      </div>
+      <div class="flow" role="img" aria-label="intake부터 보고서 생성까지의 야간 작업 흐름">
+        <div class="lane">
+          <div class="lane-label">준비</div>
+          <div class="steps">
+            <div class="step">Handoff 완독<small>읽기 순서 준수</small></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="step">라이브 재검증<small>SHA · 작업 · 자원</small></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="step">Pre-flight<small>경로 · 권한 · 명령</small></div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">미션 루프</div>
+          <div class="steps">
+            <div class="step">우선순위 실행<small>write fence 준수</small></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="step">원시 증거 수집<small>logs · artifacts</small></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="step">Result 선기록<small>수치 · 조건 · 명령</small></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="branch">
+              <div class="branch-title">결정적 판정</div>
+              <div class="branch-paths">
+                <div class="branch-path b-ok">PASS → 다음 미션</div>
+                <div class="branch-path b-fail">FAIL → 복구·breaker</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="lane-label">마감</div>
+          <div class="steps">
+            <div class="step">안전 상태 전환<small>신규 작업 중단</small></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="step">최종 상태 확인<small>intake 대비 drift</small></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="step">보고서 생성<small>CWD + run 사본</small></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FLOW_SAMPLE_START
+      <div class="flow">
+        <div class="lane">
+          <div class="lane-label">평가</div>
+          <div class="steps">
+            <div class="step">데이터 고정<small>dataset-v3</small></div>
+            <div class="arrow">→</div>
+            <div class="step">평가 실행<small>n=1,000</small></div>
+            <div class="arrow">→</div>
+            <div class="branch">
+              <div class="branch-title">p95 ≤ 120 ms</div>
+              <div class="branch-paths">
+                <div class="branch-path b-ok">PASS</div>
+                <div class="branch-path b-fail">FAIL</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      FLOW_SAMPLE_END -->
+    </section>
+
+    <section class="panel" id="missions">
+      <h2>03. 미션별 결과</h2>
+
+      <!-- MISSION_CARD_START -->
+      <article class="mission" data-status="{{mission_status_class}}">
+        <div class="mission-head">
+          <div>
+            <span class="mission-kicker">{{mission_id}}</span>
+            <h3>{{mission_title}}</h3>
+          </div>
+          <span class="status {{mission_status_class}}">{{mission_status}}</span>
+        </div>
+
+        <div class="grid2">
+          <div class="subcard">
+            <h3>목표</h3>
+            <p>{{mission_goal}}</p>
+          </div>
+          <div class="subcard">
+            <h3>수행</h3>
+            <ul>
+              {{mission_actions}}
+            </ul>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="metrics">
+            <thead>
+              <tr>
+                <th>지표</th>
+                <th>관측값</th>
+                <th>기대값</th>
+                <th>허용오차</th>
+                <th>판정</th>
+                <th>전체 조건</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- METRIC_ROW_START -->
+              <tr>
+                <td>{{metric_name}}</td>
+                <td class="big">{{metric_value}} <small>{{metric_unit}}</small></td>
+                <td>{{metric_expected}}</td>
+                <td>{{metric_tolerance}}</td>
+                <td>{{metric_pass}}</td>
+                <td>{{metric_condition}}</td>
+              </tr>
+              <!-- METRIC_ROW_END -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid2" style="margin-top: 14px;">
+          <div class="subcard">
+            <h3>판정 명령과 근거</h3>
+            <div class="code">{{metric_command}}</div>
+            <div class="path">{{metric_evidence}}</div>
+          </div>
+          <div class="subcard">
+            <h3>로그 발췌</h3>
+            <pre class="code">{{mission_log_excerpt}}</pre>
+            <div class="path">원본: {{mission_log_path}}</div>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top: 14px;">
+          <div class="subcard">
+            <h3>산출물</h3>
+            <div class="chips">
+              {{mission_artifacts}}
+            </div>
+          </div>
+          <div class="subcard">
+            <h3>코드 상태</h3>
+            <p>{{mission_commit}}</p>
+          </div>
+        </div>
+      </article>
+      <!-- MISSION_CARD_END -->
+
+      <!-- MISSION_CARD_COMPLETED_SAMPLE_START
+      <article class="mission" data-status="status-pass">
+        <div class="mission-head">
+          <div>
+            <span class="mission-kicker">M1</span>
+            <h3>지연 시간 검증</h3>
+          </div>
+          <span class="status status-pass">PASS</span>
+        </div>
+        <div class="grid2">
+          <div class="subcard">
+            <h3>목표</h3>
+            <p>C1 조건에서 p95 지연 시간 120 ms 이하를 확인한다.</p>
+          </div>
+          <div class="subcard">
+            <h3>수행</h3>
+            <ul><li>고정 데이터 1,000건 평가</li><li>결과 JSON과 원시 로그 보존</li></ul>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="metrics">
+            <thead><tr><th>지표</th><th>관측값</th><th>기대값</th><th>허용오차</th><th>판정</th><th>전체 조건</th></tr></thead>
+            <tbody><tr><td>p95 지연 시간</td><td class="big">114 ms</td><td>120 ms 이하</td><td>0 ms</td><td>PASS</td><td>dataset-v3 · a1b2c3d · cfg-prod · A100 · seed 7 · n=1,000 · protocol-v2</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+      MISSION_CARD_COMPLETED_SAMPLE_END -->
+    </section>
+
+    <section class="panel" id="timeline">
+      <h2>04. 타임라인</h2>
+      <ol class="timeline">
+        <!-- TIMELINE_ROW_START -->
+        <li>
+          <time>{{timeline_time}}</time>
+          <div>
+            <strong>{{timeline_event}}</strong>
+            <p>{{timeline_detail}}</p>
+          </div>
+        </li>
+        <!-- TIMELINE_ROW_END -->
+      </ol>
+    </section>
+
+    <section class="panel" id="decisions">
+      <h2>05. 결정 필요</h2>
+      <div class="warn">
+        <h3>아침 확인 항목</h3>
+        <ul>
+          {{decisions_html}}
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" id="next">
+      <h2>06. 다음 단계</h2>
+      <div class="chips">
+        {{next_steps_html}}
+      </div>
+    </section>
+
+    <footer>
+      <p><strong>Journal</strong> · {{journal_path}}</p>
+      <p><strong>Generated</strong> · {{generated_at}}</p>
+      <p>이 보고서는 journal의 result, decision, mission_end 이벤트와 연결된 원시 근거를 기준으로 작성했다.</p>
+    </footer>
+  </main>
+</body>
+</html>

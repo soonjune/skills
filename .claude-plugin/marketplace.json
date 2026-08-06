@@ -16,7 +16,8 @@
       "strict": false,
       "skills": [
         "./skills/natural-korean",
-        "./skills/new-skill"
+        "./skills/new-skill",
+        "./skills/nightshift"
       ]
     }
   ]
