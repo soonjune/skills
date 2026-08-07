@@ -23,9 +23,13 @@ git clone https://github.com/soonjune/skills ~/skills
 
 | Agent | Skills directory |
 |---|---|
-| Claude Code | `~/.claude/skills/` |
+| Claude Code | `~/.claude/skills/`, `$CLAUDE_CONFIG_DIR/skills/` |
 | OpenClaw | `~/.agents/skills/` |
 | Hermes | `~/.hermes/skills/` |
+
+Claude Code reads personal skills from whichever config directory it was launched
+with, so `link.sh` links into every one it finds — the default `~/.claude` when it
+exists, plus the directory `$CLAUDE_CONFIG_DIR` names.
 
 Or just copy a single skill directory — every `SKILL.md` carries its own `license` and `metadata.source`, so provenance travels with the file.
 
