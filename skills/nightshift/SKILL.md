@@ -55,6 +55,7 @@ Capture the session's original absolute working directory before changing direct
    ├── journal.jsonl
    ├── artifacts/
    ├── logs/
+   ├── night-log-<run-id>.md
    └── nightshift-report-<run-id>.<format>
    ```
 
@@ -187,13 +188,15 @@ Reserve the final 60 minutes for this phase unless the handoff explicitly choose
 3. Put each running job into the handoff's declared safe state. Do not invent a stop or remote restart command.
 4. Capture final repository, process, resource, and artifact state. Append `state_check` entries comparing it with intake.
 5. Update an allowed handoff or follow-up document with actual results when the write fence permits it, leaving evidence usable by the next worker.
-6. Load `references/report-guide.md`. For the default HTML format, copy `references/report-template.html` as a file and fill it according to its top placeholder map; do not load the entire template into conversational context. For a requested Markdown or PPT format, skip the HTML template and follow the guide's format-specific rules, keeping the same section order and evidence rules.
-7. Derive factual outcome claims only from `result`, `decision`, `mission_end`, and linked evidence. Use the other journal events — `run_start`, `mission_start`, `job_launch`, `poll`, `breaker`, `constraint`, `wrapup_start` — for the run period, timeline, and operational metadata. If evidence is sparse, still create an honest journal-only report.
-8. Scan the report and copied artifacts for likely credentials or secret values. Remove secret material while retaining safe environment-variable names and file paths.
-9. Validate the report for its format. For HTML: self-contained, no script or external asset request, no unresolved required placeholder or template/sample comment, and working internal navigation and print styling. For Markdown or a PPT outline: every required section present in order, no unresolved placeholder, and evidence paths and condition labels preserved.
-10. Complete all cleanup and validation on a temporary report file. Replace the resolved destination only after validation, copy the final bytes into the run directory, and require both copies to have the same hash.
-11. Append `report` only after both validated copies exist.
-12. Append exactly one `run_end` as the terminal Mode 2 event with the honest aggregate status and mission counts. After it is appended, perform no more tool calls, journal appends, report edits, or cleanup; return only the final user-facing response.
+6. Load `references/report-guide.md`. Write the night operations log first — `<run-dir>/night-log-<run-id>.md`, generated from the journal without being asked — covering mission-by-mission status and attempts, decisions, the chronological record, constraints, and artifacts. The night log, not the report, is where the night's procedure and timeline live. Journal it as a `step` with `action` set to `night_log`.
+7. Then build the report about the subject matter of the work — the experiment, feature, evaluation, or dataset — as the guide directs, choosing the delivery structure by content per the guide's criteria: conclusion-first when the headline result stands on its own, context-first (goal and why leading) when the narrative carries the value. Cover the headline result, background and method with labeled conditions, per-topic results, conclusions, and decisions needed. Keep the Nightshift control-plane narrative — its orchestration steps, mission IDs, and chronology — out of the report body; point to the night log and journal only as evidence paths in the provenance section. This is a semantic separation, not a word blacklist: terms such as run, heartbeat, poll, mission, or journal remain valid when they name the actual subject under study.
+8. For the default HTML format, copy `references/report-template.html` as a file and fill it according to its top placeholder map; do not load the entire template into conversational context. For a requested Markdown or PPT format, skip the HTML template and follow the guide's format-specific rules, keeping the same section order and evidence rules.
+9. Derive factual outcome claims only from `result`, `decision`, `mission_end`, and linked evidence; take period and operational metadata from the other journal events for the night log. If no `result` event exists, use the guide's zero-result report variant: state that no technical result was established, remove metric and result blocks that would require invented values, and keep the operational reason in the night log and provenance. If evidence is merely sparse, still create an honest journal-only report and night log.
+10. Scan the report, the night log, and copied artifacts for likely credentials or secret values. Remove secret material while retaining safe environment-variable names and file paths.
+11. Validate the report for its format. For HTML: self-contained, no script or external asset request, no unresolved required placeholder or template/sample comment, working internal navigation and print styling, and no Nightshift control-plane narrative outside the provenance section. Do not reject a term merely because the work's subject uses the same vocabulary. For Markdown or a PPT outline: every required section present in order, no unresolved placeholder, and evidence paths and condition labels preserved.
+12. Complete all cleanup and validation on a temporary report file. Replace the resolved destination only after validation, copy the final bytes into the run directory, and require both copies to have the same hash.
+13. Append `report` only after both validated copies exist.
+14. Append exactly one `run_end` as the terminal Mode 2 event with the honest aggregate status and mission counts. After it is appended, perform no more tool calls, journal appends, report edits, or cleanup; return only the final user-facing response.
 
 ## Guardrails
 
@@ -259,7 +262,7 @@ Before starting a new run, compute the handoff SHA-256 and scan `~/nightshift/*/
 
 1. Accept a run directory or journal path and validate it stays within the user-provided scope.
 2. Replay the journal without executing mission commands.
-3. Load `references/report-guide.md` and follow the same evidence and secret-handling rules as Phase 2.
+3. Load `references/report-guide.md` and follow the same evidence, subject-matter, and secret-handling rules as Phase 2. Regenerate `night-log-<run-id>.md` when it is missing or stale.
 4. For HTML, copy and fill `references/report-template.html`.
 5. For Markdown, preserve the HTML report's section order, status labels, evidence paths, decisions, and next steps.
 6. For PPT, use an available workplace presentation skill when one exists. Otherwise produce a slide-by-slide Markdown outline and clearly state that no PPT-generation capability was available.
