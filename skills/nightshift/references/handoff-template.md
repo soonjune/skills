@@ -177,13 +177,16 @@ Write fence:
 
 ## 7. 마감과 보고 — 필수
 
-<!-- 안내: 시간대, 최종 보고서 위치, wrap-up 여유를 명시한다. 보고서는 미션 실패와 관계없이 생성한다. -->
+<!-- 안내: 시간대, 최종 보고서 위치, wrap-up 여유를 명시한다. HTML 아침 보고서와 Markdown 야간 작업 로그는 미션 실패와 관계없이 항상 생성한다. -->
 
 - 마감: [YYYY-MM-DD HH:MM KST, 기본 다음 06:30]
 - wrap-up 시작: [마감 60분 전 또는 override]
-- 보고 형식: [HTML 기본, Markdown 또는 PPT]
+- 보고 언어: [Korean 기본]
+- 필수 아침 보고서: self-contained HTML (고정, 비활성화 불가)
+- 추가 보고서 형식: [없음 기본, Markdown, PPT, 또는 Markdown + PPT]
 - 최종 보고서 디렉터리: [세션 시작 CWD 기본]
-- 최종 파일명: [기본 nightshift-report-<run-id>.<format>]
+- 최종 보고서 기본 이름: [확장자 없이, 기본 nightshift-report-<run-id>]
+- 야간 작업 로그: `<run-dir>/night-log-<run-id>.md` (Markdown 고정, intake·heartbeat·mission_end·wrap-up에서 갱신)
 - 중앙 run root: [기본 ~/nightshift]
 - heartbeat cadence: [기본 5분, 30초–10분]
 - 미션별 poll cadence: [미션 블록 값 우선, 없으면 heartbeat cadence]
@@ -272,6 +275,7 @@ Write fence:
 - [ ] write fence, 자원 상한, 블랙아웃, 중단 규칙을 수치와 경로로 적었다.
 - [ ] 오래된 수치를 새로 측정하거나 측정 시각을 표시했다.
 - [ ] 마감·wrap-up epoch를 명령으로 round-trip 검증했고 두 값의 차이가 예약한 margin과 일치한다.
-- [ ] 마감, 시간대, wrap-up 시각, heartbeat/poll cadence, 보고 형식, 출력 위치를 적었다.
+- [ ] 마감, 시간대, wrap-up 시각, heartbeat/poll cadence, 보고 언어, 추가 보고서 형식, 출력 위치를 적었다.
+- [ ] HTML 아침 보고서와 실행 중 갱신되는 Markdown 야간 작업 로그가 필수 산출물임을 확인했다.
 - [ ] 비밀값을 넣지 않았고 환경변수 이름이나 credential 파일 경로만 남겼다.
 - [ ] 주석과 사용하지 않는 예시 블록을 삭제했다.

@@ -16,7 +16,7 @@ Turn a handoff document into guarded unattended work, durable evidence, and a mo
 - Author or validate an end-of-day handoff while the user is still present.
 - Execute prioritized missions overnight in the current session and report the results in the morning.
 - Set a heartbeat or polling cadence for an already active night run.
-- Rebuild an HTML report from a run journal or convert it to Markdown or PPT.
+- Rebuild the required HTML report from a run journal and optionally derive Markdown or PPT copies.
 - Do not use for cron or scheduled automation. The active agent session is the runner.
 
 ## Modes
@@ -37,7 +37,7 @@ Keep native goal state, observation cadence, and recurring scheduling separate.
 - Treat a native goal as a persistence aid for the objective, pause/resume state, and an explicitly requested token budget. Do not assume it provides a configurable wall-clock cadence, and keep `journal.jsonl` as the authoritative execution state.
 - Accept an optional run-level `heartbeat_cadence`. Default to 5 minutes, allow 30 seconds through 10 minutes, and obey any stricter host update requirement.
 - Let a mission's `poll_cadence` override the heartbeat for that mission. Use the shorter of the effective cadence, time remaining to `wrapup_at`, and any service reset or scheduler checkpoint.
-- At each heartbeat, perform only cheap read-only checks and append a `step` with `action` set to `heartbeat`, including current mission, last evidence time, observed progress, next action, and seconds remaining to wrap-up and deadline.
+- At each heartbeat, perform only cheap read-only checks, append a `step` with `action` set to `heartbeat` including current mission, last evidence time, observed progress, next action, and seconds remaining to wrap-up and deadline, then refresh the live night log.
 - Treat cadence as a target observation interval, not an exact scheduler guarantee. Record drift after long tool calls, rate-limit waits, machine sleep, or host continuation delays; never let cadence postpone a safety or deadline check.
 - A request to start new runs daily, weekly, or on a recurrence rule belongs to the host's scheduled-task surface after this workflow has passed manual validation. Do not add cron or a launcher to this skill.
 
@@ -56,12 +56,29 @@ Capture the session's original absolute working directory before changing direct
    ├── artifacts/
    ├── logs/
    ├── night-log-<run-id>.md
-   └── nightshift-report-<run-id>.<format>
+   ├── nightshift-report-<run-id>.html
+   └── nightshift-report-<run-id>.<additional-format>  # optional
    ```
 
 4. Copy the exact handoff into the run directory and hash that copy with SHA-256.
-5. Resolve the report destination from the handoff's report directory and filename when section 7 sets them; otherwise default to `nightshift-report-<run-id>.<format>` in the original working directory. Write the final report to that destination, keep a copy in the run directory, and record both absolute paths.
+5. Resolve one destination basename from section 7, defaulting to `nightshift-report-<run-id>` in the original working directory. If a legacy filename ends in `.html`, `.md`, or `.pptx`, strip that recognized extension before deriving outputs. Always write `<destination-basename>.html`; add `<destination-basename>.md` or `<destination-basename>.pptx` only when requested. If no presentation skill can create PPT, write `<destination-basename>-ppt-outline.md` instead and report the limitation. Name run-directory copies independently and predictably as `nightshift-report-<run-id>.html`, `nightshift-report-<run-id>.md`, `nightshift-report-<run-id>.pptx`, or `nightshift-report-<run-id>-ppt-outline.md`; do not reuse a custom destination basename there. Record every absolute path.
 6. If a completed run already owns the ID, add `-2`, `-3`, and so on. Resume an incomplete run only when its recorded handoff SHA-256 matches the current handoff; if the ID collides but the hash differs, create a suffixed new run instead of mixing handoff versions in one journal.
+
+### Output contract
+
+- Treat the self-contained HTML morning report as mandatory in Mode 2. A handoff may request Markdown or PPT only as an additional report; it cannot replace or disable HTML.
+- Keep the live Markdown night log operational and distinct from a Markdown report copy. The night log explains what Nightshift has done; every report format explains the subject matter and conclusions of the work.
+- Normalize legacy `보고 형식` values deterministically: `HTML` means no additional format; `Markdown` or `Korean Markdown` means Korean plus an additional Markdown report; `PPT` means an additional PPT report. Deduplicate combined values. Ask during intake only for an unknown format token; on silence, keep HTML only and record the fallback.
+- Record any legacy normalization as a `decision`. For new runs, persist `report_format` as `html`, `additional_report_formats` as a deduplicated list using `markdown` and `ppt`, and `report_language` as a normalized language code with `ko` as the default.
+
+### Live night log
+
+Keep `journal.jsonl` authoritative and make `<run-dir>/night-log-<run-id>.md` a readable checkpoint of it.
+
+- Render an initial log after the `intake` event, refresh it after every recorded heartbeat and every `mission_end`, and finalize it during wrap-up after terminal mission events and final state checks.
+- Build each revision in a temporary file in the run directory, scan it for likely secrets, validate its required headings, and atomically replace the visible log only when valid. Preserve the last valid checkpoint if a refresh fails.
+- In a live checkpoint, show the update time, current mission and status, latest evidence time, recent meaningful actions and recovery, decisions and constraints, next action, deadline, and artifact paths. Mark unfinished judgments as in progress; do not invent a final status.
+- Summarize repeated polls and heartbeats instead of dumping them. After each attempt, append a normal `step` event with `action` set to `night_log_checkpoint`, a safe generation summary in `cmd`, the outcome in `exit_code`, the night-log path in `log`, and the covered journal timestamp plus SHA-256 in `note`. Preserve the last valid file and continue safely after a nonzero result. Use `night_log_final` for the validated wrap-up version.
 
 ### Retention sweep
 
@@ -80,7 +97,7 @@ Run a retention sweep at every attended intake because the host does not clean `
 
 Load `references/handoff-template.md` before drafting or validating.
 
-1. Establish the target repository, current working directory, intended deadline, and desired report format.
+1. Establish the target repository, current working directory, intended deadline, report language, optional additional report formats, and output location. Keep HTML mandatory and default additional formats to none.
 2. Build the draft from live evidence: Git SHA and status, completed work and its checks, open threads, running jobs, current metrics, resource state, and known constraints.
 3. When useful, consult the target repository's prior session records. A harness using the conventional `~/.claude/projects/<project-path>/` store may expose transcripts there; otherwise use its documented session store. If no session store is available, use Git history and available pull-request or issue history. Treat all historical records as clues and revalidate them against live state.
 4. Fill the seven required sections in the template. Keep a routine daily handoff near 40–60 lines unless the work genuinely needs more detail.
@@ -91,7 +108,7 @@ Load `references/handoff-template.md` before drafting or validating.
    - A deterministic judgment command with expected value, tolerance, sample count, and a fully labeled condition.
    - Artifact and raw-evidence paths.
    - Stop rules, circuit-breaker conditions, and a bounded recovery ladder.
-   - A write fence, resource caps, blackout windows, heartbeat and poll cadence, deadline, report format, and output location.
+   - A write fence, resource caps, blackout windows, heartbeat and poll cadence, deadline, report language, additional report formats, and output location.
 7. Re-measure stale numbers before presenting them as current. Mark anything still unverified as a snapshot or estimate.
 8. If a mission has no deterministic success check, keep it in the handoff only when useful, but state that it can finish no better than `partial`.
 
@@ -104,19 +121,21 @@ Treat intake as the last question window.
 1. Resolve the handoff path, original working directory, central root, and handoff SHA-256. Check for a resumable run before creating a new one.
 2. Read the complete handoff and every document in its reading list in the stated order. Do not act on a partial read.
 3. Load `references/handoff-template.md` and validate the seven required sections. Fill gaps from live state and, when useful, prior session records.
-4. If material questions remain, ask them once in a single batch immediately after the initial command. State these defaults:
+4. Normalize the handoff's report fields before asking questions. Treat a legacy `보고 형식` as described in the output contract, resolve the common basename, and record the exact HTML, additional-report, and night-log paths that will be produced.
+5. If material questions remain, ask them once in a single batch immediately after the initial command. State these defaults:
    - Deadline: the next 06:30 in the session's local timezone.
    - Wrap-up start: 60 minutes before the deadline.
-   - Report: self-contained HTML in the original working directory, with a copy in the run directory.
+   - Report: mandatory self-contained Korean HTML in the original working directory, with a copy in the run directory; no additional report format.
+   - Night log: live Markdown in the run directory, refreshed at intake, heartbeat, mission end, and wrap-up.
    - Journal root and retention: the defaults in this skill.
    - Heartbeat cadence: 5 minutes, with a 10-minute hard maximum and per-mission poll overrides.
    - Token and API budget: unlimited unless the handoff, service, or runtime imposes a limit.
    - Permissions: only capabilities already available to the session; never infer approval for privileged, destructive, irreversible, or out-of-fence actions.
-5. Allow about one minute for an answer. If the host supports a timed question, use it. Otherwise create the run directory now if it does not exist, write `QUESTIONS.md` there, poll for `ANSWERS.md` for at most 60 seconds, and then proceed with the stated defaults. Record each unanswered default as a `decision` event. Never treat silence as approval for a guarded action.
-6. Create or adopt the run directory, copy and hash the handoff, and create `artifacts/` and `logs/`. Resolve the deadline, wrap-up margin, and cadence with a runtime date parser rather than mental arithmetic. Round-trip both epochs into the intended timezone and assert `deadline_epoch - wrapup_epoch = wrapup_margin_seconds`. Append `run_start` only after these checks pass.
-7. Perform the retention sweep and journal its exact outcome.
-8. Revalidate live state against the handoff: repository root, branch, SHA, dirty files, running jobs, host, resources, dependencies, and fresh values for decision-critical metrics. Append a `state_check` for every relevant match or drift.
-9. Run a pre-flight smoke test without triggering real mission side effects:
+6. Allow about one minute for an answer. If the host supports a timed question, use it. Otherwise create the run directory now if it does not exist, write `QUESTIONS.md` there, poll for `ANSWERS.md` for at most 60 seconds, and then proceed with the stated defaults. Record each unanswered default as a `decision` event. Never treat silence as approval for a guarded action.
+7. Create or adopt the run directory, copy and hash the handoff, and create `artifacts/` and `logs/`. Resolve the deadline, wrap-up margin, and cadence with a runtime date parser rather than mental arithmetic. Round-trip both epochs into the intended timezone and assert `deadline_epoch - wrapup_epoch = wrapup_margin_seconds`. Append `run_start` only after these checks pass, with `report_format` set to `html` and the normalized language and additional-format fields.
+8. Perform the retention sweep and journal its exact outcome.
+9. Revalidate live state against the handoff: repository root, branch, SHA, dirty files, running jobs, host, resources, dependencies, and fresh values for decision-critical metrics. Append a `state_check` for every relevant match or drift.
+10. Run a pre-flight smoke test without triggering real mission side effects:
    - Assert every referenced path and required executable exists.
    - Exercise one safe representative operation for each permission class needed overnight, including target reads, a temporary write inside the write fence, run-directory writes, process launch and polling, and network access only when allowed and required.
    - For every planned detached mechanism, launch a canary with that exact mechanism. Make the canary outlive the launch invocation and require the launch invocation to return while it is still running. In a second invocation, verify command identity and process start time, scheduler state, or reconnectable session ID while the completion sentinel is still absent; in a later invocation, verify the sentinel and exit state. A bare `kill -0` check is insufficient because PID namespaces can change and PIDs can be reused.
@@ -124,8 +143,8 @@ Treat intake as the last question window.
    - Verify exact launch, poll, collect, and judgment commands parse and can reach their inputs.
    - Ask the user to confirm machine sleep is disabled, or inspect available power state safely. If it cannot be confirmed, record the risk as a `decision`.
    - Remove only temporary files created by this smoke test.
-10. Re-read the persisted deadline, wrap-up epoch, timezone, and cadence before declaring readiness. If the current epoch is already at or after wrap-up, skip mission execution and enter Phase 2, which then records a terminal `skipped` for every mission before reporting.
-11. Append one `intake` event containing question/default pairs and all pre-flight checks. Declare readiness, then enter the unattended loop. Ask no further questions after this point.
+11. Re-read the persisted deadline, wrap-up epoch, timezone, cadence, and normalized output contract before declaring readiness. If the current epoch is already at or after wrap-up, mark mission execution to be skipped after intake.
+12. Append one `intake` event containing question/default pairs and all pre-flight checks. Render the initial live night log and declare readiness with every resolved output path. Enter Phase 2 immediately when step 11 marked execution to be skipped; otherwise enter the unattended loop. Ask no further questions after this point.
 
 ### Phase 1 — Execution loop
 
@@ -142,7 +161,7 @@ For each mission:
 5. Run the handoff's commands as written inside the write fence. Redirect long output to `logs/` and inspect bounded tails or targeted matches.
 6. Append a `step` for each meaningful action with command, exit code, log path, and concise note. Do not put credentials, tokens, or secret-bearing command text in the journal.
 7. Run only the mission's declared deterministic checks for judgment. First append one `result` per metric with raw value, unit, full condition label, expectation, tolerance, sample count when relevant, command, and evidence path.
-8. Judge from those results and then append `mission_end` with exactly one status: `pass`, `fail`, `partial`, `skipped`, or `blocked`.
+8. Judge from those results, append `mission_end` with exactly one status: `pass`, `fail`, `partial`, `skipped`, or `blocked`, and immediately refresh the live night log.
 9. Continue to the next mission after a terminal status unless the deadline or a global safety condition requires wrap-up.
 
 #### Maximum-effort recovery
@@ -188,15 +207,15 @@ Reserve the final 60 minutes for this phase unless the handoff explicitly choose
 3. Put each running job into the handoff's declared safe state. Do not invent a stop or remote restart command.
 4. Capture final repository, process, resource, and artifact state. Append `state_check` entries comparing it with intake.
 5. Update an allowed handoff or follow-up document with actual results when the write fence permits it, leaving evidence usable by the next worker.
-6. Load `references/report-guide.md`. Write the night operations log first — `<run-dir>/night-log-<run-id>.md`, generated from the journal without being asked — covering mission-by-mission status and attempts, decisions, the chronological record, constraints, and artifacts. The night log, not the report, is where the night's procedure and timeline live. Journal it as a `step` with `action` set to `night_log`.
-7. Then build the report about the subject matter of the work — the experiment, feature, evaluation, or dataset — as the guide directs, choosing the delivery structure by content per the guide's criteria: conclusion-first when the headline result stands on its own, context-first (goal and why leading) when the narrative carries the value. Cover the headline result, background and method with labeled conditions, per-topic results, conclusions, and decisions needed. Keep the Nightshift control-plane narrative — its orchestration steps, mission IDs, and chronology — out of the report body; point to the night log and journal only as evidence paths in the provenance section. This is a semantic separation, not a word blacklist: terms such as run, heartbeat, poll, mission, or journal remain valid when they name the actual subject under study.
-8. For the default HTML format, copy `references/report-template.html` as a file and fill it according to its top placeholder map; do not load the entire template into conversational context. For a requested Markdown or PPT format, skip the HTML template and follow the guide's format-specific rules, keeping the same section order and evidence rules.
+6. Load `references/report-guide.md`. Finalize `<run-dir>/night-log-<run-id>.md` from the journal, covering mission-by-mission status and attempts, decisions, the chronological record, constraints, and artifacts. The night log, not the report, is where the night's procedure and timeline live. Replace the last live checkpoint atomically and journal it as a `step` with `action` set to `night_log_final`.
+7. Build one format-neutral report about the subject matter of the work — the experiment, feature, evaluation, or dataset — as the guide directs, choosing the delivery structure by content per the guide's criteria: conclusion-first when the headline result stands on its own, context-first (goal and why leading) when the narrative carries the value. Cover the headline result, background and method with labeled conditions, per-topic results, conclusions, and decisions needed. Keep the Nightshift control-plane narrative — its orchestration steps, mission IDs, and chronology — out of every report body; point to the night log and journal only as evidence paths in the provenance section. This is a semantic separation, not a word blacklist: terms such as run, heartbeat, poll, mission, or journal remain valid when they name the actual subject under study.
+8. Always create the required HTML report first by copying `references/report-template.html` and filling its top placeholder map; do not load the entire template into conversational context. After that HTML validates, derive each requested Markdown or PPT copy from the same report content and follow the guide's format-specific rules. Never skip or replace HTML because an additional format was requested.
 9. Derive factual outcome claims only from `result`, `decision`, `mission_end`, and linked evidence; take period and operational metadata from the other journal events for the night log. If no `result` event exists, use the guide's zero-result report variant: state that no technical result was established, remove metric and result blocks that would require invented values, and keep the operational reason in the night log and provenance. If evidence is merely sparse, still create an honest journal-only report and night log.
-10. Scan the report, the night log, and copied artifacts for likely credentials or secret values. Remove secret material while retaining safe environment-variable names and file paths.
-11. Validate the report for its format. For HTML: self-contained, no script or external asset request, no unresolved required placeholder or template/sample comment, working internal navigation and print styling, and no Nightshift control-plane narrative outside the provenance section. Do not reject a term merely because the work's subject uses the same vocabulary. For Markdown or a PPT outline: every required section present in order, no unresolved placeholder, and evidence paths and condition labels preserved.
-12. Complete all cleanup and validation on a temporary report file. Replace the resolved destination only after validation, copy the final bytes into the run directory, and require both copies to have the same hash.
-13. Append `report` only after both validated copies exist.
-14. Append exactly one `run_end` as the terminal Mode 2 event with the honest aggregate status and mission counts. After it is appended, perform no more tool calls, journal appends, report edits, or cleanup; return only the final user-facing response.
+10. Scan every report, the final night log, and copied artifacts for likely credentials or secret values. Remove secret material while retaining safe environment-variable names and file paths.
+11. Validate every delivered report for its format. For HTML: self-contained, no script or external asset request, no unresolved required placeholder or template/sample comment, working internal navigation and print styling, and no Nightshift control-plane narrative outside the provenance section. Do not reject a term merely because the work's subject uses the same vocabulary. For Markdown or a PPT outline: every required section present in order, no unresolved placeholder, and evidence paths and condition labels preserved. Check that conclusions, metrics, condition labels, decisions, and next steps agree across formats.
+12. Complete all cleanup and validation on temporary report files. Replace each resolved destination only after that format validates, copy the final bytes into the run directory, and require the destination and run-directory copy of each format to have the same hash.
+13. Append one `report` event per delivered format only after its validated copies exist, using `role` set to `primary` for HTML and `supplementary` for every additional format. Set `path` to the resolved destination, include that destination plus the run-directory copy and any authorized extra copies in `copies`, and record their shared `sha256`. If a requested supplementary conversion fails after bounded recovery, preserve the required HTML and final night log, record the failed conversion as a `step`, and prevent the aggregate run status from being better than `partial`.
+14. Append exactly one `run_end` as the terminal Mode 2 event with the honest aggregate status and mission counts. Require a successful primary HTML `report` event first; a missing supplementary `report` event is allowed only with the recorded partial-status failure above. After `run_end`, perform no more tool calls, journal appends, report edits, or cleanup; return only the final user-facing response.
 
 ## Guardrails
 
@@ -228,7 +247,7 @@ Include `ts`, `run`, and `type` in every event. Use these type-specific fields:
 
 | Type | Required type-specific fields |
 | --- | --- |
-| `run_start` | `handoff`, `handoff_sha256`, `deadline`, `wrapup_at`, `report_format`, `report_dir`, `cwd`, `host`, optional `heartbeat_cadence_seconds` |
+| `run_start` | `handoff`, `handoff_sha256`, `deadline`, `wrapup_at`, `report_format` as `html`, `additional_report_formats` as a deduplicated list, `report_language` as a normalized code (default `ko`), `report_dir`, `cwd`, `host`, optional `heartbeat_cadence_seconds` |
 | `intake` | `questions` as question/answer pairs, `preflight` as objects with `check`, `ok`, `detail` |
 | `state_check` | `scope`, `expected`, `observed`, `match` |
 | `mission_start` | `mission`, `goal` |
@@ -241,7 +260,7 @@ Include `ts`, `run`, and `type` in every event. Use these type-specific fields:
 | `breaker` | `mission`, `kind` as `infra` or `identical_failure`, `count`, `action` |
 | `constraint` | `kind` as `rate_limit`, `quota`, or `budget`, `detail`, `action`, `resume_at` |
 | `wrapup_start` | `reason` |
-| `report` | `path`, `format`, `copies` |
+| `report` | `role` as `primary` or `supplementary`, `path` as the resolved destination, `format`, `copies` containing every final absolute copy including `path`, shared `sha256` |
 | `run_end` | `status`, `missions_total`, `missions_done` |
 
 A pass or fail claim must have an earlier `result` event. Reports may derive factual outcome claims only from `result`, `decision`, and `mission_end` events, with paths to supporting evidence.
@@ -256,17 +275,19 @@ Before starting a new run, compute the handoff SHA-256 and scan `~/nightshift/*/
 - Continue appending after the last valid JSON line. If a crash left one malformed final line, preserve its bytes; when the file does not end with a newline, first write a single newline terminator so the malformed bytes stay on their own line, then append the recovery note as a new line, and make journal replay skip only that documented malformed line.
 - If the matching run has `run_end`, create a suffixed new run unless the request is Mode 3.
 - Treat any Mode 2 `run_end` as terminal. Never append a duplicate `run_end` or reopen mission execution after it.
+- When replaying an older journal, treat a legacy `report_format` of `markdown` or `ppt` as an additional format while making HTML primary. Do not rewrite the old event; record normalization in the resumed journal or Mode 3 sidecar.
+- Accept legacy `report` events that lack `role` or `sha256` during replay. Infer `primary` only from `format: html`; treat legacy Markdown/PPT events as supplementary, and never let one satisfy the required HTML report. Keep the old bytes unchanged.
 - Keep the report reproducible from the journal even if all live processes and conversational context are lost.
 
 ## Mode 3 — Rebuild or convert a report
 
 1. Accept a run directory or journal path and validate it stays within the user-provided scope.
 2. Replay the journal without executing mission commands.
-3. Load `references/report-guide.md` and follow the same evidence, subject-matter, and secret-handling rules as Phase 2. Regenerate `night-log-<run-id>.md` when it is missing or stale.
-4. For HTML, copy and fill `references/report-template.html`.
-5. For Markdown, preserve the HTML report's section order, status labels, evidence paths, decisions, and next steps.
-6. For PPT, use an available workplace presentation skill when one exists. Otherwise produce a slide-by-slide Markdown outline and clearly state that no PPT-generation capability was available.
-7. For a completed run, record regeneration in a separate `report-rebuild.jsonl` sidecar when writable and authorized. Never append another `run_end` or reopen the execution journal; otherwise leave the source untouched.
+3. Normalize legacy report fields with the same compatibility rules as intake. Load `references/report-guide.md` and follow the same evidence, subject-matter, and secret-handling rules as Phase 2. Regenerate `night-log-<run-id>.md` when it is missing or stale.
+4. Always rebuild or verify the canonical HTML report by copying and filling `references/report-template.html`, even when the conversion request names only Markdown or PPT.
+5. For requested Markdown, derive an additional copy that preserves the HTML report's section order, status labels, evidence paths, decisions, and next steps.
+6. For requested PPT, use an available workplace presentation skill. Otherwise produce `<basename>-ppt-outline.md` and clearly state that no PPT-generation capability was available.
+7. For a completed run, record normalization and every regenerated format in a separate `report-rebuild.jsonl` sidecar when writable and authorized. Never append another `run_end` or reopen the execution journal; otherwise leave the source untouched.
 
 ## Reference loading
 
