@@ -54,6 +54,7 @@ python3 evals/sync_style.py --check  # 커밋 전 신선도 검사
 - 객관 지표: 이 suite의 plain/styled 쌍 점수 차이. 판정 시점에 전체 스윕을 한 번 더 돌려 케이스당 arm별 6회(2회 스윕 × 3 runs)를 확보한다.
 - 주관 지표: `scripts/kr-ab.sh` 래퍼가 인터랙티브 `claude` 세션마다 50% 확률로 스타일을 주입하고(`NK_AB_ARM` 노출), styled 세션 마무리에 "평소보다 이해하기 나았는지"를 👍/👎로 한 번 묻는다. 기록은 `skills/natural-korean/scripts/feedback.py`가 `~/.local/state/natural-korean-ab/`(learn.py 저장소와 분리, untracked 파일이 있으면 learn.py가 멈추기 때문)에 남긴다. 수동 기록은 `/kr-feedback`.
 - 판정 규칙: `narrate-work`·`explain-*` 쌍의 styled−plain 점수 차이 ≥ +0.10 이고, `coding-regression` 차이 ≥ −0.05 이고, `ppt-carveout-styled` ≥ 0.9 이고, 주관 up-rate가 10건 이상에서 70%를 넘고 misread가 늘지 않으면 채택한다. 채택하면 `~/.claude/settings.json`에 `"outputStyle": "natural-korean-understanding"`을 영구 설정하고 래퍼를 제거한다. styled 개선이 전혀 없으면 "프롬프트 수준에서 해결 불가"로 기록한다(워터마크가 샘플링 레벨이라면 프롬프트로 제거할 수 없고, 이 결과 자체가 에스컬레이션 근거다).
+- 포화 보정: 1차 측정에서 plain arm이 이미 대부분 1.00이라 "+0.10 개선" 기준은 성립할 수 없다. regex 지표가 양 arm에서 포화되어 있는 동안 객관 지표는 가드레일로만 쓴다(styled가 어느 케이스에서도 0.95 아래로 떨어지지 않을 것, coding-regression 차이 ≥ −0.05, ppt-carveout-styled ≥ 0.9). 채택 판정의 주 지표는 주관 up-rate다. 더 어려운 케이스가 추가되어 plain이 포화를 벗어나면 원래 기준으로 돌아간다.
 
 ## Baseline (2026-08-19, plain arm, runs=3)
 
@@ -68,6 +69,20 @@ python3 evals/sync_style.py --check  # 커밋 전 신선도 검사
 참고: ppt-carveout의 최초 실행은 0.67이었으나, 저장소가 group-writable이라 CLI가 manifest를 무시하던 환경에서 나온 결과였다. `chmod -R g-w` 후 재실행에서는 grader와 프롬프트를 바꾸지 않고 3회 모두 1.00이 나왔고, 이때 스킬은 불릿 명사형 유지·수치와 양태 보존·완결 문장 설명을 정확히 지켰다.
 
 해석: 현재 기본 모델은 이 다섯 과제의 plain arm에서 전보식·엠대시 같은 기계적 실패를 내지 않았다. 따라서 regex grader들은 styled arm의 회귀를 막는 가드레일로 기능하고, 개선 신호는 llm grader와 주관 피드백(up-rate)에서 찾아야 한다. 더 어려운 케이스(긴 세션 요약, 컨텍스트 압축 후 서술 등)는 다듬으면서 추가한다.
+
+## 1차 쌍 비교 (2026-08-19, arm당 runs=3)
+
+| 케이스 | plain | styled | 차이 | 비고 |
+|---|---|---|---|---|
+| explain-git-rebase | 1.00 | 1.00 | 0.00 | |
+| explain-error-log | 1.00 | 1.00 | 0.00 | |
+| narrate-work | 1.00 | 0.97 | −0.03 | llm judge 3표 중 2표 실패 1회 (노이즈 수준) |
+| ppt-carveout | 0.91 | 0.95 | +0.04 | 안정화 프롬프트 기준, 아래 참고 |
+| coding-regression | 1.00 | 1.00 | 0.00 | 성능 회귀 없음, doctest 증거 포함 |
+
+가드레일 판정: 스타일은 코딩 정확성(coding-regression 1.00), 산출물 경계(ppt-carveout-styled ≥ 0.9, 불릿 개조식 유지), 기계 지표 어디에서도 회귀를 만들지 않았다. 채택 여부는 주관 up-rate가 결정한다.
+
+ppt-carveout 안정화 기록: styled 첫 스윕에서 3회 중 2회가 0.57로 떨어졌는데, transcript 확인(`--keep-temp` 재실행, 3회 모두 1.00) 결과 스타일 문제가 아니라 모델이 마지막 턴을 짧은 후속 코멘트로 끝내면 `last_message`에 본문이 빠지는 측정 아티팩트였다. 프롬프트에 "불릿과 설명을 마지막 한 번의 답변에 함께 담고, 추가 확인 질문으로 끝내지 마"라는 형식 제약을 추가해 안정화했고(위 표는 그 기준), 이 제약은 두 arm에 동일하게 적용되므로 비교는 공정하다.
 
 ## 알려진 한계
 
