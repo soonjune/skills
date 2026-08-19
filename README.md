@@ -29,7 +29,12 @@ git clone https://github.com/soonjune/skills ~/skills
 
 Claude Code reads personal skills from whichever config directory it was launched
 with, so `link.sh` links into every one it finds — the default `~/.claude` when it
-exists, plus the directory `$CLAUDE_CONFIG_DIR` names.
+exists, plus the directory `$CLAUDE_CONFIG_DIR` names. For Claude Code it also
+links the repo's `output-styles/*.md` and `commands/*.md` into each config dir
+(other agents have no such concept).
+
+Pick one install route per config dir: installing the plugin **and** running
+`link.sh` on the same machine loads every skill twice.
 
 Or just copy a single skill directory — every `SKILL.md` carries its own `license` and `metadata.source`, so provenance travels with the file.
 
@@ -71,6 +76,15 @@ metadata:
   agents: claude openclaw
 ```
 
+## Korean output layer
+
+`output-styles/natural-korean-understanding.md` is an always-on output style that
+keeps Claude's Korean narration comprehensible (particle/ending restoration, full
+sentences, common vocabulary). It complements the `natural-korean` skill: the
+style governs conversation, the skill governs deliverables, and each defers to
+the other in the other's territory. `evals/` holds a paired plain/styled
+`claude plugin eval` suite that measures the style's effect; see `evals/README.md`.
+
 ## License
 
-[MIT](LICENSE). Skill files also declare `license` in frontmatter so attribution survives copy-paste.
+[MIT](LICENSE). Skill files also declare `license` in frontmatter so attribution survives copy-paste. `output-styles/natural-korean-understanding.md` is vendored from [snflkd/fluent-korean](https://github.com/snflkd/fluent-korean) (MIT) with local adaptations recorded in its header comment.

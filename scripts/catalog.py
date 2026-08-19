@@ -49,3 +49,10 @@ if mp_path.is_file():
         mp["plugins"][0]["skills"] = [f"./skills/{d.name}" for d in skill_dirs]
         mp_path.write_text(json.dumps(mp, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(f"marketplace.json: {len(skill_dirs)} skill(s) listed")
+
+pj_path = ROOT / ".claude-plugin" / "plugin.json"
+if pj_path.is_file():
+    pj = json.loads(pj_path.read_text(encoding="utf-8"))
+    pj["skills"] = [f"./skills/{d.name}" for d in skill_dirs]
+    pj_path.write_text(json.dumps(pj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"plugin.json: {len(skill_dirs)} skill(s) listed")
