@@ -1,14 +1,20 @@
 # natural-korean-understanding A/B 래퍼. ~/.zshrc에서 source해서 쓴다.
 #
-# 인터랙티브 `claude` 실행(인자 없음, 또는 -c/--continue만)에 한해 50% 확률로
-# output style 본문을 --append-system-prompt-file로 주입한다. styled arm에는
-# 세션 마무리에 👍/👎 피드백을 한 번 묻는 메모를 함께 주입한다.
-# - NK_AB=off 로 전체를 끈다.
-# - 서브커맨드·플래그가 있는 실행(claude -p, claude plugin ...)은 건드리지
-#   않으므로 nightshift 같은 스크립트 경로에는 영향이 없다.
-# - 세션 arm은 NK_AB_ARM으로 자식 프로세스에만 전달되고 feedback.py가 이를
-#   읽는다. 셸에 export하면 같은 터미널에서 이어 실행한 비개입 명령까지 그
-#   값을 물려받아 arm이 잘못 기록되므로, 명령 앞 할당으로만 넘긴다.
+# 인터랙티브 `claude` 세션에 한해 50% 확률로 output style 본문을
+# --append-system-prompt-file로 주입한다. styled arm에는 세션 마무리에 👍/👎
+# 피드백을 한 번 묻는 메모를 함께 주입한다.
+#
+# 인터랙티브가 claude의 기본 모드이므로 기본값을 "개입"으로 두고, 아래 신호가
+# 있을 때만 비개입으로 통과시킨다. 반대로(안전한 인자만 허용) 짜면 --model이나
+# --dangerously-skip-permissions 같은 평범한 세션 플래그까지 실험에서 빠진다.
+#   - NK_AB=off, 스타일 파일 없음, tty 아님
+#   - 첫 인자가 서브커맨드 (plugin, mcp, update, ...)
+#   - -p/--print, --version, --help 같은 비대화 실행
+#   - 사용자가 직접 --append-system-prompt[-file]을 넘긴 경우 (충돌 회피)
+#
+# 세션 arm은 NK_AB_ARM으로 자식 프로세스에만 전달되고 feedback.py가 이를
+# 읽는다. 셸에 export하면 같은 터미널에서 이어 실행한 비개입 명령까지 그
+# 값을 물려받아 arm이 잘못 기록되므로, 명령 앞 할당으로만 넘긴다.
 claude() {
   local repo="/home/soonjun-park/skills"
   local style="$repo/output-styles/natural-korean-understanding.md"
@@ -18,11 +24,22 @@ claude() {
     command claude "$@"
     return $?
   fi
+
+  case "${1:-}" in
+    agents|auth|auto-mode|config|doctor|gateway|import|install|mcp|migrate-installer|\
+    plugin|plugins|project|setup-token|ultrareview|update|upgrade)
+      command claude "$@"
+      return $?
+      ;;
+  esac
+
   local a
   for a in "$@"; do
     case "$a" in
-      -c|--continue) ;;
-      *) command claude "$@"; return $? ;;
+      -p|--print|-v|--version|-h|--help|--append-system-prompt|--append-system-prompt-file)
+        command claude "$@"
+        return $?
+        ;;
     esac
   done
 
