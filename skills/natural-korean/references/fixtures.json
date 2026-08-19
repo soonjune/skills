@@ -133,7 +133,7 @@
     },
     {
       "id": "F-R28-GENRE",
-      "text": "첫째, 범위를 확인함. 둘째, 순서를 확인함. 셋째, 예외를 확인함. 넷째, 형식을 확인함.",
+      "text": "첫째, 범위를 확인한다. 둘째, 순서를 확인한다. 셋째, 예외를 확인한다. 넷째, 형식을 확인한다.",
       "genre": "report",
       "expected_rule_ids": ["R-28"],
       "expected_exit": 1
@@ -359,6 +359,34 @@
       "id": "F-NO-BLANKET-THROUGH-THING",
       "text": "검토를 통해 확인한 것이다",
       "genre": null,
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R42-REPORT-OVERUSE",
+      "text": "지표를 확인함. 원인을 분석함. 조치를 적용함. 결과를 공유함.",
+      "genre": "report",
+      "expected_rule_ids": ["R-42"],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R42-BELOW-THRESHOLD",
+      "text": "지표를 확인함. 원인을 분석함. 조치를 적용함.",
+      "genre": "report",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R42-GENRE-GATE",
+      "text": "지표를 확인함. 원인을 분석함. 조치를 적용함. 결과를 공유함.",
+      "genre": "ppt",
+      "expected_rule_ids": [],
+      "expected_exit": 0
+    },
+    {
+      "id": "F-R42-NOUN-EXCEPTIONS",
+      "text": "다음 회의 안건을 정리한다. 채용은 팀장 책임 아래 진행한다. 사내 모임 공지는 게시판에 올린다. 처음 계획과 달라진 점을 표시한다.",
+      "genre": "report",
       "expected_rule_ids": [],
       "expected_exit": 0
     }
