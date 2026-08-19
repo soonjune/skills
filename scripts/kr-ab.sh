@@ -6,7 +6,9 @@
 # - NK_AB=off 로 전체를 끈다.
 # - 서브커맨드·플래그가 있는 실행(claude -p, claude plugin ...)은 건드리지
 #   않으므로 nightshift 같은 스크립트 경로에는 영향이 없다.
-# - 세션 arm은 NK_AB_ARM으로 노출되고 feedback.py가 이를 읽는다.
+# - 세션 arm은 NK_AB_ARM으로 자식 프로세스에만 전달되고 feedback.py가 이를
+#   읽는다. 셸에 export하면 같은 터미널에서 이어 실행한 비개입 명령까지 그
+#   값을 물려받아 arm이 잘못 기록되므로, 명령 앞 할당으로만 넘긴다.
 claude() {
   local repo="/home/soonjun-park/skills"
   local style="$repo/output-styles/natural-korean-understanding.md"
@@ -26,8 +28,7 @@ claude() {
 
   local arm=plain
   (( RANDOM % 2 )) && arm=styled
-  export NK_AB_ARM="$arm"
-  python3 "$fb" --log-exposure >/dev/null 2>&1
+  NK_AB_ARM="$arm" python3 "$fb" --log-exposure >/dev/null 2>&1
 
   if [[ "$arm" == "styled" ]]; then
     local tmp="${TMPDIR:-/tmp}/nk-ab-styled-$$.md"
@@ -37,11 +38,11 @@ claude() {
       printf '\n## A/B 세션 메모 (위 한국어 지침의 일부가 아님)\n'
       printf '이 세션은 스타일 적용(styled) arm이다. 세션이 자연스럽게 마무리되는 시점에 딱 한 번, 이번 세션의 한국어 설명이 평소보다 이해하기 나았는지 👍/👎 로 짧게 묻는다. 답을 받으면 `python3 %s --verdict up` 또는 `--verdict down` 으로 기록하고, 사용자가 작업 내용을 오해했던 일이 있었다면 `--misread`를 붙인다. 답하지 않으면 다시 묻지 않는다.\n' "$fb"
     } > "$tmp"
-    command claude --append-system-prompt-file "$tmp" "$@"
+    NK_AB_ARM="$arm" command claude --append-system-prompt-file "$tmp" "$@"
     local rc=$?
     rm -f "$tmp"
     return $rc
   fi
 
-  command claude "$@"
+  NK_AB_ARM="$arm" command claude "$@"
 }
