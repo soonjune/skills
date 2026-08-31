@@ -86,7 +86,7 @@ claude() {
   local tmp="${TMPDIR:-/tmp}/nk-ab-$$.md"
   {
     if [[ "$arm" == "styled" ]]; then
-      # frontmatter와 출처 주석을 뗀 스타일 본문만 주입한다(evals의 sync_style.py와 동일 처치).
+      # frontmatter와 출처 주석을 떼고 스타일 본문만 주입한다.
       awk 'f>=2{print} /^---[[:space:]]*$/{f++}' "$style" | sed '/^<!--/,/^-->/d'
     fi
     if [[ "$ask" == "1" ]]; then
