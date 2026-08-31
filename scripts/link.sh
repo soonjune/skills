@@ -2,7 +2,8 @@
 # Symlink every skill in this repo into each installed agent's skills directory.
 #
 # An agent counts as installed when its home directory exists (claude: ~/.claude
-# or $CLAUDE_CONFIG_DIR, openclaw: ~/.openclaw or ~/.agents, hermes: ~/.hermes).
+# or $CLAUDE_CONFIG_DIR, codex: ~/.codex or $CODEX_HOME, openclaw: ~/.openclaw
+# or ~/.agents, hermes: ~/.hermes).
 # Set LINK_ALL=1 to link for every agent regardless.
 #
 # Claude Code can run against more than one config directory (the default
@@ -19,7 +20,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-all_agents="claude openclaw hermes"
+all_agents="claude codex openclaw hermes"
 
 known_agent() {
   case " $all_agents " in *" $1 "*) return 0 ;; *) return 1 ;; esac
@@ -52,11 +53,30 @@ claude_config_dirs() {
   } | awk 'length($0) && !seen[$0]++'
 }
 
+# Codex follows CODEX_HOME when set and otherwise uses ~/.codex. As with Claude,
+# link both an explicitly configured home and an existing default home, then
+# deduplicate them after normalizing trailing slashes.
+codex_config_dirs() {
+  {
+    if [ -n "${CODEX_HOME:-}" ]; then
+      normalize_config_dir "$CODEX_HOME"
+    fi
+    if [ -d "$HOME/.codex" ] || [ "${LINK_ALL:-0}" = "1" ]; then
+      normalize_config_dir "$HOME/.codex"
+    fi
+  } | awk 'length($0) && !seen[$0]++'
+}
+
 # Skills directories for an agent, one per line; empty when it isn't installed.
 targets_for() {
   case "$1" in
     claude)
       claude_config_dirs | while IFS= read -r d; do
+        printf '%s\n' "${d%/}/skills"
+      done
+      ;;
+    codex)
+      codex_config_dirs | while IFS= read -r d; do
         printf '%s\n' "${d%/}/skills"
       done
       ;;
@@ -118,5 +138,38 @@ for dir in "$repo_root"/skills/*/; do
       linked=$((linked + 1))
     done <<< "$dests"
   done
+done
+
+# Claude 전용 자산: output style과 slash command 파일을 각 Claude config dir에
+# 개별 파일 단위로 링크한다. 다른 에이전트에는 해당 개념이 없다.
+for kind in output-styles commands; do
+  src_dir="$repo_root/$kind"
+  [ -d "$src_dir" ] || continue
+  cfg_dirs="$(claude_config_dirs)"
+  if [ -z "$cfg_dirs" ]; then
+    echo "skip: $kind -> claude (not installed; LINK_ALL=1 to force)"
+    continue
+  fi
+  while IFS= read -r cfg; do
+    dest="$cfg/$kind"
+    for f in "$src_dir"/*.md; do
+      [ -f "$f" ] || continue
+      mkdir -p "$dest"
+      link="$dest/$(basename "$f")"
+      if [ -L "$link" ]; then
+        current="$(readlink "$link")"
+        if [ "$current" != "$f" ]; then
+          echo "warn: $kind/$(basename "$f") -> claude replaces existing link (was -> $current)" >&2
+        fi
+        rm "$link"
+      elif [ -e "$link" ]; then
+        echo "skip: $link exists and is not a symlink" >&2
+        continue
+      fi
+      ln -s "$f" "$link"
+      echo "linked: $kind/$(basename "$f") -> claude ($link)"
+      linked=$((linked + 1))
+    done
+  done <<< "$cfg_dirs"
 done
 echo "done: $linked link(s) created."

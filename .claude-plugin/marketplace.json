@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "soonjune-skills",
-      "description": "Portable personal Agent Skills — one collection serving Claude Code, OpenClaw, and Hermes",
+      "description": "Portable personal Agent Skills — one collection serving Codex, Claude Code, OpenClaw, and Hermes",
       "source": "./",
       "strict": false,
       "skills": [

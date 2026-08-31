@@ -13,7 +13,12 @@ class OpenAiMetadataTests(unittest.TestCase):
 
         self.assertEqual(
             metadata.read_text(encoding="utf-8"),
-            "policy:\n  allow_implicit_invocation: false\n",
+            "interface:\n"
+            '  display_name: "Natural Korean"\n'
+            '  short_description: "한국어 문서와 Codex 대화 서술을 자연스럽게 다듬습니다."\n'
+            '  default_prompt: "Use $natural-korean to polish this Korean document while preserving its meaning."\n'
+            "policy:\n"
+            "  allow_implicit_invocation: false\n",
         )
 
 

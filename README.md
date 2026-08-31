@@ -1,6 +1,6 @@
 # skills
 
-Personal [Agent Skills](https://agentskills.io) — portable `SKILL.md` skills for [Claude Code](https://code.claude.com), [OpenClaw](https://openclaw.ai), [Hermes](https://hermes-agent.nousresearch.com), and any agent that speaks the open standard.
+Personal [Agent Skills](https://agentskills.io) — portable `SKILL.md` skills for Codex, [Claude Code](https://code.claude.com), [OpenClaw](https://openclaw.ai), [Hermes](https://hermes-agent.nousresearch.com), and any agent that speaks the open standard.
 
 Write a skill once, use it from every agent: `scripts/link.sh` symlinks each skill into every agent's personal skills directory, and per-skill frontmatter can restrict a skill to specific agents. This is the public half of a two-repo setup — a private sibling repo with the same layout holds skills that are mine alone.
 
@@ -24,12 +24,22 @@ git clone https://github.com/soonjune/skills ~/skills
 | Agent | Skills directory |
 |---|---|
 | Claude Code | `~/.claude/skills/`, `$CLAUDE_CONFIG_DIR/skills/` |
+| Codex | `~/.codex/skills/`, `$CODEX_HOME/skills/` |
 | OpenClaw | `~/.agents/skills/` |
 | Hermes | `~/.hermes/skills/` |
 
 Claude Code reads personal skills from whichever config directory it was launched
 with, so `link.sh` links into every one it finds — the default `~/.claude` when it
-exists, plus the directory `$CLAUDE_CONFIG_DIR` names.
+exists, plus the directory `$CLAUDE_CONFIG_DIR` names. For Claude Code it also
+links the repo's `output-styles/*.md` and `commands/*.md` into each config dir
+(other agents have no such concept).
+
+Codex follows the same multi-home rule: `link.sh` links into an explicitly set
+`$CODEX_HOME` and into the default `~/.codex` when that directory exists. The
+repository also includes `.codex-plugin/plugin.json` for Codex plugin packaging.
+
+Pick one install route per config dir: installing the plugin **and** running
+`link.sh` on the same machine loads every skill twice.
 
 Or just copy a single skill directory — every `SKILL.md` carries its own `license` and `metadata.source`, so provenance travels with the file.
 
@@ -71,6 +81,18 @@ metadata:
   agents: claude openclaw
 ```
 
+## Korean output layer
+
+`output-styles/natural-korean-understanding.md` is a Claude output-style candidate
+that keeps Korean narration comprehensible (particle/ending restoration, full
+sentences, common vocabulary). It complements the `natural-korean` skill: the
+style governs conversation, the skill governs deliverables, and each defers to
+the other in the other's territory. It is not configured permanently while the
+A/B experiment is inconclusive. In Codex, `$natural-korean` applies the same core
+principles to conversation only when explicitly invoked and never asks for
+feedback automatically. `evals/` holds a paired plain/styled `claude plugin eval`
+suite that measures the Claude style's effect; see `evals/README.md`.
+
 ## License
 
-[MIT](LICENSE). Skill files also declare `license` in frontmatter so attribution survives copy-paste.
+[MIT](LICENSE). Skill files also declare `license` in frontmatter so attribution survives copy-paste. `output-styles/natural-korean-understanding.md` is vendored from [snflkd/fluent-korean](https://github.com/snflkd/fluent-korean) (MIT) with local adaptations recorded in its header comment.

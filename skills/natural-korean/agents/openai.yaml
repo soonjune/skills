@@ -1,2 +1,6 @@
+interface:
+  display_name: "Natural Korean"
+  short_description: "한국어 문서와 Codex 대화 서술을 자연스럽게 다듬습니다."
+  default_prompt: "Use $natural-korean to polish this Korean document while preserving its meaning."
 policy:
   allow_implicit_invocation: false
