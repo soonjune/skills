@@ -11,8 +11,5 @@
     "./skills/nightshift"
   ],
   "outputStyles": "./output-styles",
-  "commands": "./commands",
-  "experimental": {
-    "evals": "./evals"
-  }
+  "commands": "./commands"
 }

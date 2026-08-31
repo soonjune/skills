@@ -88,10 +88,20 @@ that keeps Korean narration comprehensible (particle/ending restoration, full
 sentences, common vocabulary). It complements the `natural-korean` skill: the
 style governs conversation, the skill governs deliverables, and each defers to
 the other in the other's territory. It is not configured permanently while the
-A/B experiment is inconclusive. In Codex, `$natural-korean` applies the same core
-principles to conversation only when explicitly invoked and never asks for
-feedback automatically. `evals/` holds a paired plain/styled `claude plugin eval`
-suite that measures the Claude style's effect; see `evals/README.md`.
+A/B experiment is inconclusive. `scripts/kr-ab.sh` samples styled/plain Claude
+sessions 50/50, while `feedback.py` keeps agent and protocol records separate.
+Only `claude-blind-v2` feedback counts toward Claude adoption: each arm needs at
+least 10 responses, the styled up-rate must reach 70% and lead plain by 20
+percentage points, and its misread rate must not be higher. In Codex,
+`$natural-korean` applies the same core principles to conversation only when
+explicitly invoked, never asks for feedback automatically, and records results
+outside the Claude adoption cohort.
+
+The experimental regex plugin-eval suite was removed after its plain arm
+saturated and an [upstream review](https://github.com/snflkd/fluent-korean/issues/1)
+concluded that these checks measured mechanical rule following rather than
+whether Korean explanations were actually clearer. The compact skill-level
+regression cases under `skills/natural-korean/evals/` remain.
 
 ## License
 
