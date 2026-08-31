@@ -66,6 +66,20 @@ def generate(dest_root: Path) -> list[Path]:
     return written
 
 
+def clean_generated(dest_root: Path) -> None:
+    """Remove generated case directories so deleted sources cannot linger."""
+    for styled in sorted(dest_root.glob("*-styled")):
+        if styled.is_symlink() or not styled.is_dir():
+            styled.unlink()
+        else:
+            shutil.rmtree(styled)
+
+
+def sync(dest_root: Path = EVALS) -> list[Path]:
+    clean_generated(dest_root)
+    return generate(dest_root)
+
+
 def check() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_root = Path(tmp)
@@ -97,7 +111,7 @@ def main() -> int:
     args = parser.parse_args()
     if args.check:
         return check()
-    written = generate(EVALS)
+    written = sync(EVALS)
     cases = {p.relative_to(EVALS).parts[0] for p in written}
     print(f"generated {len(written)} file(s) across {len(cases)} styled case(s)")
     return 0

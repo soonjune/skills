@@ -1,6 +1,6 @@
 # natural-korean-understanding evals
 
-상시 output style(`output-styles/natural-korean-understanding.md`)이 한국어 서술을 실제로 개선하는지, 그리고 코딩 작업과 natural-korean 스킬의 산출물 규칙을 해치지 않는지 측정한다. 같은 프롬프트를 스타일 없이(`*-plain`) / 스타일을 `append_system_prompt`로 주입해(`*-styled`) 각각 돌리고 점수 차이를 본다. output style은 eval 샌드박스에서 선택되지 않으므로 이 쌍 비교가 유일하게 유효한 방법이다.
+output style 후보(`output-styles/natural-korean-understanding.md`)가 한국어 서술을 실제로 개선하는지, 그리고 코딩 작업과 natural-korean 스킬의 산출물 규칙을 해치지 않는지 측정한다. 같은 프롬프트를 스타일 없이(`*-plain`) / 스타일을 `append_system_prompt`로 주입해(`*-styled`) 각각 돌리고 점수 차이를 본다. output style은 eval 샌드박스에서 선택되지 않으므로 이 쌍 비교가 유일하게 유효한 방법이다.
 
 ## 실행
 
@@ -52,9 +52,10 @@ python3 evals/sync_style.py --check  # 커밋 전 신선도 검사
 ## A/B 프로토콜
 
 - 객관 지표: 이 suite의 plain/styled 쌍 점수 차이. 판정 시점에 전체 스윕을 한 번 더 돌려 케이스당 arm별 6회(2회 스윕 × 3 runs)를 확보한다.
-- 주관 지표: `scripts/kr-ab.sh` 래퍼가 인터랙티브 `claude` 세션마다 50% 확률로 스타일을 주입하고(`NK_AB_ARM` 노출), styled 세션 마무리에 "평소보다 이해하기 나았는지"를 👍/👎로 한 번 묻는다. 기록은 `skills/natural-korean/scripts/feedback.py`가 `~/.local/state/natural-korean-ab/`(learn.py 저장소와 분리, untracked 파일이 있으면 learn.py가 멈추기 때문)에 남긴다. 수동 기록은 `/kr-feedback`.
-- 판정 규칙: `narrate-work`·`explain-*` 쌍의 styled−plain 점수 차이 ≥ +0.10 이고, `coding-regression` 차이 ≥ −0.05 이고, `ppt-carveout-styled` ≥ 0.9 이고, 주관 up-rate가 10건 이상에서 70%를 넘고 misread가 늘지 않으면 채택한다. 채택하면 `~/.claude/settings.json`에 `"outputStyle": "natural-korean-understanding"`을 영구 설정하고 래퍼를 제거한다. styled 개선이 전혀 없으면 "프롬프트 수준에서 해결 불가"로 기록한다(워터마크가 샘플링 레벨이라면 프롬프트로 제거할 수 없고, 이 결과 자체가 에스컬레이션 근거다).
-- 포화 보정: 1차 측정에서 plain arm이 이미 대부분 1.00이라 "+0.10 개선" 기준은 성립할 수 없다. regex 지표가 양 arm에서 포화되어 있는 동안 객관 지표는 가드레일로만 쓴다(styled가 어느 케이스에서도 0.95 아래로 떨어지지 않을 것, coding-regression 차이 ≥ −0.05, ppt-carveout-styled ≥ 0.9). 채택 판정의 주 지표는 주관 up-rate다. 더 어려운 케이스가 추가되어 plain이 포화를 벗어나면 원래 기준으로 돌아간다.
+- 주관 지표: `scripts/kr-ab.sh` 래퍼가 인터랙티브 `claude` 세션마다 50% 확률로 스타일을 주입하고, 이와 독립인 코인으로 `NK_AB_ASK_PCT`(기본 50, 0~100 정수)% 세션에 세션 마무리 피드백 메모를 주입해 "평소보다 이해하기 나았는지"를 👍/👎로 한 번 묻는다. 메모 본문은 두 arm에서 바이트 단위로 동일하다: 질문이 나온다는 사실이 arm과 상관되면 사용자 blind가 깨지기 때문이고, 이 설계에서 plain arm의 답변은 placebo 대조가 된다. 노출의 `ask_armed`는 실제 질문 여부가 아니라 이 메모의 주입 여부다. 재개 세션(`-c`/`--resume`)은 코인을 다시 던지면 한 대화 안에서 arm이 뒤섞이므로 실험에서 제외한다. 래퍼는 모든 새 기록에 `agent=claude`, `protocol=claude-blind-v2`를 명시한다.
+- 기록 계층: `skills/natural-korean/scripts/feedback.py`는 `~/.local/state/natural-korean-ab/`(learn.py 저장소와 분리, untracked 파일이 있으면 learn.py가 멈추기 때문)에 기록한다. 채택 통계에는 정확히 `agent=claude`, `protocol=claude-blind-v2`인 행만 쓴다. 프로토콜 필드가 없던 기존 JSONL은 파일을 수정하지 않고 읽을 때 `legacy-unlabeled`로 분리하며, `/kr-feedback`의 `claude-manual-v1`과 Codex 명시 호출의 `codex-explicit-v1`도 채택 통계에서 제외한다.
+- 판정 규칙: `narrate-work`·`explain-*` 쌍의 styled−plain 점수 차이 ≥ +0.10 이고, `coding-regression` 차이 ≥ −0.05 이고, `ppt-carveout-styled` ≥ 0.9 이고, 주관 지표가 arm별 10건 이상에서 styled up-rate 70% 이상이면서 plain up-rate를 20%p 이상 앞서고, styled의 misread 비율이 plain보다 높지 않으면 채택한다. 채택하면 `~/.claude/settings.json`에 `"outputStyle": "natural-korean-understanding"`을 영구 설정하고 래퍼를 제거한다. styled 개선이 전혀 없으면 "프롬프트 수준에서 해결 불가"로 기록한다(워터마크가 샘플링 레벨이라면 프롬프트로 제거할 수 없고, 이 결과 자체가 에스컬레이션 근거다).
+- 포화 보정: 1차 측정에서 plain arm이 이미 대부분 1.00이라 "+0.10 개선" 기준은 성립할 수 없다. regex 지표가 양 arm에서 포화되어 있는 동안 객관 지표는 가드레일로만 쓴다(styled가 어느 케이스에서도 0.95 아래로 떨어지지 않을 것, coding-regression 차이 ≥ −0.05, ppt-carveout-styled ≥ 0.9). 채택 판정의 주 지표는 styled와 plain의 주관 up-rate 차이다. 더 어려운 케이스가 추가되어 plain이 포화를 벗어나면 원래 기준으로 돌아간다.
 
 ## Baseline (2026-08-19, plain arm, runs=3)
 

@@ -1,0 +1,33 @@
+{
+  "name": "soonjune-skills",
+  "version": "1.1.0",
+  "description": "Portable personal Agent Skills for Codex, Claude Code, OpenClaw, and Hermes",
+  "author": {
+    "name": "soonjune"
+  },
+  "repository": "https://github.com/soonjune/skills",
+  "license": "MIT",
+  "keywords": [
+    "agent-skills",
+    "korean-writing",
+    "workflow"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Soonjune Skills",
+    "shortDescription": "Portable skills for Korean writing and personal workflows.",
+    "longDescription": "A portable collection of Agent Skills for natural Korean writing, skill scaffolding, and unattended night work.",
+    "developerName": "soonjune",
+    "category": "Productivity",
+    "capabilities": [
+      "Write",
+      "Automate"
+    ],
+    "websiteURL": "https://github.com/soonjune/skills",
+    "defaultPrompt": [
+      "$natural-korean 이 한국어 문서를 자연스럽게 다듬어 줘.",
+      "$new-skill 새 스킬을 만들어 줘.",
+      "$nightshift 이 핸드오프를 밤새 실행해 줘."
+    ]
+  }
+}

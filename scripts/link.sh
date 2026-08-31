@@ -2,7 +2,8 @@
 # Symlink every skill in this repo into each installed agent's skills directory.
 #
 # An agent counts as installed when its home directory exists (claude: ~/.claude
-# or $CLAUDE_CONFIG_DIR, openclaw: ~/.openclaw or ~/.agents, hermes: ~/.hermes).
+# or $CLAUDE_CONFIG_DIR, codex: ~/.codex or $CODEX_HOME, openclaw: ~/.openclaw
+# or ~/.agents, hermes: ~/.hermes).
 # Set LINK_ALL=1 to link for every agent regardless.
 #
 # Claude Code can run against more than one config directory (the default
@@ -19,7 +20,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-all_agents="claude openclaw hermes"
+all_agents="claude codex openclaw hermes"
 
 known_agent() {
   case " $all_agents " in *" $1 "*) return 0 ;; *) return 1 ;; esac
@@ -52,11 +53,30 @@ claude_config_dirs() {
   } | awk 'length($0) && !seen[$0]++'
 }
 
+# Codex follows CODEX_HOME when set and otherwise uses ~/.codex. As with Claude,
+# link both an explicitly configured home and an existing default home, then
+# deduplicate them after normalizing trailing slashes.
+codex_config_dirs() {
+  {
+    if [ -n "${CODEX_HOME:-}" ]; then
+      normalize_config_dir "$CODEX_HOME"
+    fi
+    if [ -d "$HOME/.codex" ] || [ "${LINK_ALL:-0}" = "1" ]; then
+      normalize_config_dir "$HOME/.codex"
+    fi
+  } | awk 'length($0) && !seen[$0]++'
+}
+
 # Skills directories for an agent, one per line; empty when it isn't installed.
 targets_for() {
   case "$1" in
     claude)
       claude_config_dirs | while IFS= read -r d; do
+        printf '%s\n' "${d%/}/skills"
+      done
+      ;;
+    codex)
+      codex_config_dirs | while IFS= read -r d; do
         printf '%s\n' "${d%/}/skills"
       done
       ;;
