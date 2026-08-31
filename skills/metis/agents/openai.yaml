@@ -1,0 +1,6 @@
+interface:
+  display_name: "Metis"
+  short_description: "Grounds crucial planning choices in recycled evidence."
+  default_prompt: "Use $metis to ground this planning decision in evidence already explored in this session."
+policy:
+  allow_implicit_invocation: true
