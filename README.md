@@ -24,7 +24,7 @@ git clone https://github.com/soonjune/skills ~/skills
 | Agent | Skills directory |
 |---|---|
 | Claude Code | `~/.claude/skills/`, `$CLAUDE_CONFIG_DIR/skills/` |
-| Codex | `~/.codex/skills/`, `$CODEX_HOME/skills/` |
+| Codex | `~/.agents/skills/`, `~/.codex/skills/`, `$CODEX_HOME/skills/` |
 | OpenClaw | `~/.agents/skills/` |
 | Hermes | `~/.hermes/skills/` |
 
@@ -34,9 +34,10 @@ exists, plus the directory `$CLAUDE_CONFIG_DIR` names. For Claude Code it also
 links the repo's `output-styles/*.md` and `commands/*.md` into each config dir
 (other agents have no such concept).
 
-Codex follows the same multi-home rule: `link.sh` links into an explicitly set
-`$CODEX_HOME` and into the default `~/.codex` when that directory exists. The
-repository also includes `.codex-plugin/plugin.json` for Codex plugin packaging.
+Codex follows the same multi-home rule: `link.sh` links into the current shared
+user location `~/.agents/skills`, an explicitly set `$CODEX_HOME`, and the
+legacy `~/.codex` location when those homes exist. The repository also includes
+`.codex-plugin/plugin.json` for Codex plugin packaging.
 
 Pick one install route per config dir: installing the plugin **and** running
 `link.sh` on the same machine loads every skill twice.

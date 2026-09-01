@@ -2,8 +2,8 @@
 # Symlink every skill in this repo into each installed agent's skills directory.
 #
 # An agent counts as installed when its home directory exists (claude: ~/.claude
-# or $CLAUDE_CONFIG_DIR, codex: ~/.codex or $CODEX_HOME, openclaw: ~/.openclaw
-# or ~/.agents, hermes: ~/.hermes).
+# or $CLAUDE_CONFIG_DIR, codex: ~/.agents, ~/.codex, or $CODEX_HOME, openclaw:
+# ~/.openclaw or ~/.agents, hermes: ~/.hermes).
 # Set LINK_ALL=1 to link for every agent regardless.
 #
 # Claude Code can run against more than one config directory (the default
@@ -53,13 +53,16 @@ claude_config_dirs() {
   } | awk 'length($0) && !seen[$0]++'
 }
 
-# Codex follows CODEX_HOME when set and otherwise uses ~/.codex. As with Claude,
-# link both an explicitly configured home and an existing default home, then
-# deduplicate them after normalizing trailing slashes.
+# Codex discovers current user skills under ~/.agents/skills. Keep linking the
+# legacy ~/.codex location and an explicit CODEX_HOME as well, then deduplicate
+# all homes after normalizing trailing slashes.
 codex_config_dirs() {
   {
     if [ -n "${CODEX_HOME:-}" ]; then
       normalize_config_dir "$CODEX_HOME"
+    fi
+    if [ -d "$HOME/.agents" ] || [ "${LINK_ALL:-0}" = "1" ]; then
+      normalize_config_dir "$HOME/.agents"
     fi
     if [ -d "$HOME/.codex" ] || [ "${LINK_ALL:-0}" = "1" ]; then
       normalize_config_dir "$HOME/.codex"
