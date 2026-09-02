@@ -24,7 +24,7 @@ git clone https://github.com/soonjune/skills ~/skills
 | Agent | Skills directory |
 |---|---|
 | Claude Code | `~/.claude/skills/`, `$CLAUDE_CONFIG_DIR/skills/` |
-| Codex | `~/.codex/skills/`, `$CODEX_HOME/skills/` |
+| Codex | `~/.agents/skills/`, `~/.codex/skills/`, `$CODEX_HOME/skills/` |
 | OpenClaw | `~/.agents/skills/` |
 | Hermes | `~/.hermes/skills/` |
 
@@ -34,9 +34,10 @@ exists, plus the directory `$CLAUDE_CONFIG_DIR` names. For Claude Code it also
 links the repo's `output-styles/*.md` and `commands/*.md` into each config dir
 (other agents have no such concept).
 
-Codex follows the same multi-home rule: `link.sh` links into an explicitly set
-`$CODEX_HOME` and into the default `~/.codex` when that directory exists. The
-repository also includes `.codex-plugin/plugin.json` for Codex plugin packaging.
+Codex follows the same multi-home rule: `link.sh` links into the current shared
+user location `~/.agents/skills`, an explicitly set `$CODEX_HOME`, and the
+legacy `~/.codex` location when those homes exist. The repository also includes
+`.codex-plugin/plugin.json` for Codex plugin packaging.
 
 Pick one install route per config dir: installing the plugin **and** running
 `link.sh` on the same machine loads every skill twice.
@@ -48,6 +49,7 @@ Or just copy a single skill directory — every `SKILL.md` carries its own `lice
 <!-- skills:start -->
 | Skill | Description | Agents |
 | --- | --- | --- |
+| [`metis`](skills/metis) | Ground crucial option questions in Claude Code or Codex plan mode with clickable evidence recycled from files and URLs already opened during planning. | claude codex |
 | [`natural-korean`](skills/natural-korean) | 한국어 보고서·PPT·이메일·회의록·공지·번역문·코드 주석·커밋 메시지를 작성하거나 다듬을 때 문서와 독자에 맞는 자연스러운 문체를 적용하고, "AI 티 빼줘", "AI스러운 표현 빼줘", "번역투 고쳐", "자연스럽게 써줘", "개조식으로", "말투 고쳐", "앞으로 이렇게 써" 같은 요청과 사람이 고친 문체를 로컬 취향 후보로 정리한다. | all |
 | [`new-skill`](skills/new-skill) | Scaffold a new skill in this skills repository — copies the template, enforces Agent Skills spec conventions, refreshes the catalog and marketplace manifest, and relinks agent skill directories. | all |
 | [`nightshift`](skills/nightshift) | Executes a user-written handoff document overnight as an unattended autonomous work session — running prioritized missions (implementation and verification, performance improvement, research, data generation, long-running job babysitting) under strict guardrails with an append-only journal, then producing a polished Korean morning report for 조간보고/scrum by a hard deadline. | all |

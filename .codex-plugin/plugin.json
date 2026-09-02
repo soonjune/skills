@@ -1,6 +1,6 @@
 {
   "name": "soonjune-skills",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Portable personal Agent Skills for Codex, Claude Code, OpenClaw, and Hermes",
   "author": {
     "name": "soonjune"
@@ -16,7 +16,7 @@
   "interface": {
     "displayName": "Soonjune Skills",
     "shortDescription": "Portable skills for Korean writing and personal workflows.",
-    "longDescription": "A portable collection of Agent Skills for natural Korean writing, skill scaffolding, and unattended night work.",
+    "longDescription": "A portable collection of Agent Skills for natural Korean writing, plan-mode decision briefs, skill scaffolding, and unattended night work.",
     "developerName": "soonjune",
     "category": "Productivity",
     "capabilities": [

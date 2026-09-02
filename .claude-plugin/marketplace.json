@@ -15,6 +15,7 @@
       "source": "./",
       "strict": false,
       "skills": [
+        "./skills/metis",
         "./skills/natural-korean",
         "./skills/new-skill",
         "./skills/nightshift"
