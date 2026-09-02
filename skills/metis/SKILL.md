@@ -26,6 +26,7 @@ Make crucial planning choices reviewable: show what each option changes, the evi
 - Companion reading is optional: add `See also` with zero to two already-opened references only when they materially help the comparison.
 - If no option has any recycled evidence, ask the question plainly and state that limitation in one line above it.
 - Keep each option block to six lines or fewer. A path without a line number is acceptable when that is all the session has.
+- Format local evidence as a repository-relative `path:line` when the file is inside the active repository, and as an absolute `/full/path:line` when it is outside. If no repository root can be determined, use an absolute path.
 - **Labels follow the conversation language.** The templates below use English labels (`Tradeoff:`, `See also:`, `not yet explored`); render their equivalents in the conversation language.
 
 Immediately before the question tool, print one block per option:
@@ -45,12 +46,12 @@ Omit `See also` when empty. Keep `Evidence: not yet explored` when only that opt
 - Treat the message blocks as the primary review surface; keep option labels short and descriptions to one grounded sentence.
 - Put the recommended option first and explain why in its description. Do not rely on a bare `(Recommended)` marker.
 - Add an option `preview` only when the current AskUserQuestion schema explicitly exposes that field. If available, reuse the same compact block; otherwise do not send an unsupported field.
-- Use bare `path:line` references and URLs in the message blocks so the terminal can linkify them. The same blocks work for single- and multi-select questions.
+- Use bare repository-relative `path:line` references for files inside the active repository and bare absolute `/full/path:line` references for files outside it, so the terminal can linkify them. Use ordinary URLs. The same blocks work for single- and multi-select questions.
 
 ## Codex — request_user_input
 
 - Print the option blocks as commentary immediately before calling `request_user_input`; its short labels and descriptions are not a rich evidence surface.
-- For local files, display `path:line` but use the host's clickable Markdown file-link form with an absolute target. Use normal Markdown links for visited URLs.
+- For local files, display a repository-relative `path:line` when the file is inside the active repository and an absolute `/full/path:line` when it is outside; in both cases, use the host's clickable Markdown file-link form with an absolute target. Use normal Markdown links for visited URLs.
 - Follow the tool's current option contract, including its recommendation marker and ordering rules. If the tool is unavailable, use numbered plain-text options after the same evidence blocks.
 
 ## Record the choice

@@ -39,6 +39,8 @@ class MetisHookTests(unittest.TestCase):
         self.assertEqual(specific["hookEventName"], "UserPromptSubmit")
         context = specific["additionalContext"]
         self.assertIn("metis", context)
+        self.assertIn("repo-relative paths inside", context)
+        self.assertIn("absolute paths outside", context)
         self.assertNotIn("\n", context)
         self.assertLessEqual(len(context), 600)
         self.assertNotIn("~/.claude", context)

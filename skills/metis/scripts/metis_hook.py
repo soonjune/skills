@@ -14,8 +14,9 @@ REMINDER = (
     "model, dependency, security/cost, hard-to-reverse), show every option's "
     "concrete effect, tradeoff, and clickable evidence recycled from files "
     "or URLs already opened this session. Companion links are optional (0-2) "
-    "and only when useful. Mark unexamined options 'not yet explored'; never "
-    "research just to decorate; keep trivial choices plain."
+    "and only when useful. Use repo-relative paths inside the active repo and "
+    "absolute paths outside it. Mark unexamined options 'not yet explored'; "
+    "never research just to decorate; keep trivial choices plain."
 )
 
 
